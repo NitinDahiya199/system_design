@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Case Studies | System Design Study Hub</title>
+  <meta
+    name="description"
+    content="System design case studies with deep interview explanations and examples."
+  >
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=Source+Sans+3:wght@400;500;600;700&display=swap"
+    rel="stylesheet"
+  >
+  <link rel="stylesheet" href="../styles/main.css">
+</head>
+<body data-content-file="../data/case-studies.json">
+  <div class="site-shell">
+    <header class="site-header">
+      <a class="brand" href="../index.html">System Design Study Hub</a>
+      <nav class="main-nav" aria-label="Primary">
+        <a href="../index.html">Home</a>
+        <a href="fundamentals.html">Fundamentals</a>
+        <a href="components.html">Components</a>
+        <a href="interview-prep.html">Interview Prep</a>
+        <a href="case-studies.html" aria-current="page">Case Studies</a>
+      </nav>
+    </header>
+
+    <main class="page-main">
+      <section class="page-hero detail-hero">
+        <div>
+          <p class="eyebrow" data-role="hero-eyebrow">Case Studies</p>
+          <h1 data-role="hero-title">Loading case studies...</h1>
+          <p data-role="hero-description">Please wait while the study content loads.</p>
+        </div>
+        <aside class="hero-panel">
+          <h2>Best way to practice</h2>
+          <p class="muted">
+            Pick one prompt, answer it out loud, then compare your answer with the full
+            breakdown on the detail page.
+          </p>
+          <ul class="stack-list" data-role="focus-list"></ul>
+        </aside>
+      </section>
+
+      <section class="content-block">
+        <div class="section-heading">
+          <p class="eyebrow">Prompt Library</p>
+          <h2>Choose a full case study</h2>
+          <p data-role="card-intro"></p>
+        </div>
+        <div class="card-grid" data-role="card-grid"></div>
+      </section>
+
+      <section class="content-block">
+        <div class="section-heading compact">
+          <p class="eyebrow">Study Flow</p>
+          <h2 data-role="focus-title">How to use this section</h2>
+        </div>
+        <div class="roadmap compact-roadmap" data-role="learning-steps"></div>
+      </section>
+    </main>
+  </div>
+
+  <script src="../scripts/site-content.js" defer></script>
+  <script src="../scripts/category-page.js" defer></script>
+</body>
+</html>

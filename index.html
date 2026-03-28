@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>System Design Study Hub</title>
+  <meta
+    name="description"
+    content="A multi-page HTML and CSS website for learning system design and preparing for interviews."
+  >
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=Source+Sans+3:wght@400;500;600;700&display=swap"
+    rel="stylesheet"
+  >
+  <link rel="stylesheet" href="styles/main.css">
+</head>
+<body>
+  <div class="site-shell">
+    <header class="site-header">
+      <a class="brand" href="index.html">System Design Study Hub</a>
+      <nav class="main-nav" aria-label="Primary">
+        <a href="index.html" aria-current="page">Home</a>
+        <a href="pages/fundamentals.html">Fundamentals</a>
+        <a href="pages/components.html">Components</a>
+        <a href="pages/interview-prep.html">Interview Prep</a>
+        <a href="pages/case-studies.html">Case Studies</a>
+      </nav>
+    </header>
+
+    <main>
+      <section class="hero">
+        <div class="hero-copy">
+          <p class="eyebrow">Static learning site for interviews</p>
+          <h1>Study system design with simple lessons, deep pages, and interview-ready examples.</h1>
+          <p class="hero-text">
+            Move from basic ideas to full case studies without leaving the site. Study fundamentals,
+            architecture building blocks, interview strategy, and a much larger set of classic prompts
+            in one place.
+          </p>
+          <div class="hero-actions">
+            <a class="button button-primary" href="pages/fundamentals.html">Start With Basics</a>
+            <a class="button button-secondary" href="pages/case-studies.html">Open Case Studies</a>
+          </div>
+        </div>
+
+        <aside class="hero-panel" aria-label="Study focus areas">
+          <h2>This site now helps you do more</h2>
+          <ul class="stack-list">
+            <li>Open every major topic in its own full explanation page</li>
+            <li>Learn in simple words with multiple real-world examples</li>
+            <li>Connect related ideas through linked study pages</li>
+            <li>Prepare for interviews without jumping to other sites</li>
+            <li>Use deeper case studies like Netflix, WhatsApp, Zoom, and payment systems</li>
+          </ul>
+        </aside>
+      </section>
+
+      <section class="section">
+        <div class="section-heading">
+          <p class="eyebrow">Roadmap</p>
+          <h2>A practical study flow</h2>
+          <p>
+            Use the pages in order if you are starting out, or jump straight to the interview
+            prep and case-study sections when revising.
+          </p>
+        </div>
+
+        <div class="roadmap">
+          <article class="roadmap-step">
+            <span class="step-number">01</span>
+            <h3>Fundamentals</h3>
+            <p>Build intuition around scaling, performance, consistency, and reliability.</p>
+          </article>
+          <article class="roadmap-step">
+            <span class="step-number">02</span>
+            <h3>Components</h3>
+            <p>Learn where caches, queues, CDNs, proxies, and databases fit in.</p>
+          </article>
+          <article class="roadmap-step">
+            <span class="step-number">03</span>
+            <h3>Interview Prep</h3>
+            <p>Practice clarifying requirements, estimating scale, and comparing options.</p>
+          </article>
+          <article class="roadmap-step">
+            <span class="step-number">04</span>
+            <h3>Case Studies</h3>
+            <p>Apply the framework to classic prompts like chat, feeds, and URL shorteners.</p>
+          </article>
+        </div>
+      </section>
+
+      <section class="section">
+        <div class="section-heading">
+          <p class="eyebrow">Study Topics</p>
+          <h2>Pick a learning track</h2>
+          <p>Each section now opens into many detailed pages, so you can move from summary cards to full explanations.</p>
+        </div>
+
+        <div class="card-grid">
+          <article class="topic-card">
+            <p class="card-tag">Core ideas</p>
+            <h3>Fundamentals</h3>
+            <p>
+              Understand latency, throughput, availability, partitioning, replication,
+              and consistency before diving into system building blocks.
+            </p>
+            <a class="text-link" href="pages/fundamentals.html">Explore fundamentals</a>
+          </article>
+
+          <article class="topic-card">
+            <p class="card-tag">Architecture pieces</p>
+            <h3>Components</h3>
+            <p>
+              Review how load balancers, caches, databases, queues, APIs, and CDNs are used
+              in modern distributed systems.
+            </p>
+            <a class="text-link" href="pages/components.html">Review components</a>
+          </article>
+
+          <article class="topic-card">
+            <p class="card-tag">Interview strategy</p>
+            <h3>Interview Prep</h3>
+            <p>
+              Follow a repeatable answer framework, estimation checklist, and bottleneck review
+              process for whiteboard interviews.
+            </p>
+            <a class="text-link" href="pages/interview-prep.html">Practice the framework</a>
+          </article>
+
+          <article class="topic-card">
+            <p class="card-tag">Applied practice</p>
+            <h3>Case Studies</h3>
+            <p>
+              See how prompts like URL shortener, YouTube, Uber, and Dropbox are broken
+              down into requirements, architecture, and scaling decisions.
+            </p>
+            <a class="text-link" href="pages/case-studies.html">Open case studies</a>
+          </article>
+        </div>
+      </section>
+
+      <section class="section">
+        <div class="section-heading">
+          <p class="eyebrow">Featured Deep Dives</p>
+          <h2>Jump straight into popular interview topics</h2>
+          <p>These are good starting points if you want detailed study pages right away.</p>
+        </div>
+
+        <div class="feature-grid">
+          <article class="feature-card">
+            <p class="card-tag">Fundamental</p>
+            <h3>Idempotency</h3>
+            <p>Understand why retries can create duplicate actions and how good systems prevent that.</p>
+            <a class="text-link" href="pages/detail.html?category=fundamentals&id=idempotency">Open full page</a>
+          </article>
+
+          <article class="feature-card">
+            <p class="card-tag">Component</p>
+            <h3>Search Systems</h3>
+            <p>Learn why search is a separate system, how indexes work, and what freshness trade-offs appear.</p>
+            <a class="text-link" href="pages/detail.html?category=components&id=search-systems">Open full page</a>
+          </article>
+
+          <article class="feature-card">
+            <p class="card-tag">Case Study</p>
+            <h3>Design Payment System</h3>
+            <p>Study correctness, idempotency, audit logs, retries, and safe payment state changes.</p>
+            <a class="text-link" href="pages/detail.html?category=case-studies&id=payment-system">Open full page</a>
+          </article>
+        </div>
+      </section>
+
+      <section class="section split-panel">
+        <article class="panel">
+          <div class="section-heading compact">
+            <p class="eyebrow">Revision Strategy</p>
+            <h2>How to use this site effectively</h2>
+          </div>
+          <ul class="check-list">
+            <li>Start each session with the quick revision notes on a topic page.</li>
+            <li>Read the deeper explanation only after you can restate the headline ideas.</li>
+            <li>Say trade-offs out loud as if you are answering an interviewer.</li>
+            <li>Use the case studies page to connect concepts into end-to-end designs.</li>
+          </ul>
+        </article>
+
+        <article class="panel">
+          <div class="section-heading compact">
+            <p class="eyebrow">What Interviewers Want</p>
+            <h2>Signals you should practice</h2>
+          </div>
+          <div class="pill-row" aria-label="Interview signals">
+            <span class="pill">Clarity</span>
+            <span class="pill">Trade-offs</span>
+            <span class="pill">Scalability</span>
+            <span class="pill">Reliability</span>
+            <span class="pill">Prioritization</span>
+            <span class="pill">Communication</span>
+          </div>
+          <p class="muted">
+            Strong interview answers are rarely about naming every tool. They focus on
+            choosing the right trade-offs for the scale and product requirements.
+          </p>
+        </article>
+      </section>
+    </main>
+  </div>
+</body>
+</html>

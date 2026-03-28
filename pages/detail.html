@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Study Detail | System Design Study Hub</title>
+  <meta
+    name="description"
+    content="Detailed system design study material loaded from structured content files."
+  >
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=Source+Sans+3:wght@400;500;600;700&display=swap"
+    rel="stylesheet"
+  >
+  <link rel="stylesheet" href="../styles/main.css">
+</head>
+<body>
+  <div class="site-shell">
+    <header class="site-header">
+      <a class="brand" href="../index.html">System Design Study Hub</a>
+      <nav class="main-nav" aria-label="Primary">
+        <a href="../index.html">Home</a>
+        <a href="fundamentals.html">Fundamentals</a>
+        <a href="components.html">Components</a>
+        <a href="interview-prep.html">Interview Prep</a>
+        <a href="case-studies.html">Case Studies</a>
+      </nav>
+    </header>
+
+    <main class="page-main" data-role="detail-shell">
+      <nav class="breadcrumb" aria-label="Breadcrumb" data-role="breadcrumb"></nav>
+
+      <section class="page-hero detail-hero">
+        <div>
+          <p class="eyebrow" data-role="detail-eyebrow">Study Topic</p>
+          <h1 data-role="detail-title">Loading topic...</h1>
+          <p data-role="detail-description">Please wait while the content is loaded.</p>
+        </div>
+        <aside class="hero-panel" data-role="summary-panel"></aside>
+      </section>
+
+      <section class="detail-layout">
+        <aside class="panel detail-sidebar">
+          <div class="section-heading compact">
+            <p class="eyebrow">On this page</p>
+            <h2>Study map</h2>
+          </div>
+          <nav class="mini-link-row vertical-links" data-role="section-nav" aria-label="Section navigation"></nav>
+        </aside>
+
+        <div class="detail-content" data-role="detail-content"></div>
+      </section>
+    </main>
+  </div>
+
+  <script src="../scripts/site-content.js" defer></script>
+  <script src="../scripts/detail-page.js" defer></script>
+</body>
+</html>

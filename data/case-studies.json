@@ -1,0 +1,1290 @@
+{
+  "category": "case-studies",
+  "label": "Case Studies",
+  "heroEyebrow": "Case Studies",
+  "heroTitle": "Study full interview prompts without leaving the site.",
+  "heroDescription": "Each case study explains the goal, main flow, useful components, trade-offs, and interview talking points in simple language.",
+  "cardIntro": "Open any case study for a full breakdown with many examples, common mistakes, and practical interview guidance.",
+  "items": [
+    {
+      "id": "url-shortener",
+      "title": "Design a URL Shortener",
+      "tag": "Classic interview",
+      "summary": "Build a service that turns long links into short links and redirects users quickly.",
+      "quickPoints": [
+        "Main writes: create short links.",
+        "Main reads: redirect short codes to original URLs.",
+        "This is read-heavy and latency-sensitive."
+      ],
+      "whatItMeans": "You need a service that accepts a long URL, generates a short code, stores the mapping, and later redirects users when they visit the short link.",
+      "whyItMatters": "This problem tests ID generation, read scaling, caching, and how you think about a very common but simple service.",
+      "simpleExample": "A user submits a long shopping link and gets a short code like abc123. When someone visits that code, the service finds the original URL and redirects them.",
+      "realWorldExamples": [
+        "Marketing teams use short links in campaigns.",
+        "Social apps use compact URLs in posts and messages.",
+        "Analytics products track click counts and link performance."
+      ],
+      "interviewTip": "Start with the main flow: shorten, store, redirect. Only after that add analytics, custom aliases, and abuse control.",
+      "tradeOffs": [
+        "Random IDs are easy to spread, but need collision handling.",
+        "Deterministic IDs are simpler to reason about, but may be predictable.",
+        "Caching redirects improves speed, but stale data can appear if links change or expire."
+      ],
+      "commonMistakes": [
+        "Spending too much time on rare features before the redirect flow is clear.",
+        "Ignoring abuse, spam, or malicious URL control.",
+        "Forgetting that the redirect path is the hottest path."
+      ],
+      "relatedTopics": [
+        { "category": "components", "id": "cache", "title": "Cache" },
+        { "category": "fundamentals", "id": "latency-throughput", "title": "Latency and Throughput" }
+      ],
+      "sections": [
+        {
+          "title": "Main architecture",
+          "paragraphs": [
+            "A simple version has an API service, a database for short-code mappings, and a cache for popular redirects.",
+            "The create flow writes a new mapping. The read flow looks in cache first and then falls back to the database."
+          ],
+          "bullets": [
+            "Create API.",
+            "Redirect service.",
+            "Mapping database.",
+            "Cache for hot links."
+          ]
+        },
+        {
+          "title": "Good follow-up points",
+          "paragraphs": [
+            "After the main system is clear, talk about expiration, custom aliases, click analytics, and spam detection."
+          ],
+          "bullets": [
+            "Analytics can be async through a queue.",
+            "Hot links benefit from caching.",
+            "Code generation must avoid collisions."
+          ]
+        }
+      ]
+    },
+    {
+      "id": "chat-system",
+      "title": "Design a Chat System",
+      "tag": "Real-time",
+      "summary": "Build one-to-one or group messaging with real-time delivery, durable storage, and offline sync.",
+      "quickPoints": [
+        "Messages should arrive quickly.",
+        "Users may go offline and come back later.",
+        "Ordering and fan-out matter."
+      ],
+      "whatItMeans": "You need a system that lets users send messages, receive them fast, and view message history across devices.",
+      "whyItMatters": "This problem tests real-time delivery, persistent connections, message storage, and scaling for fan-out.",
+      "simpleExample": "One user sends hello. The other user sees it quickly if online, or later after reconnecting if offline.",
+      "realWorldExamples": [
+        "Team chat tools need message history and search.",
+        "Consumer chat apps need group chats, media, and push notifications.",
+        "Support chat tools need message delivery tracking and agent routing."
+      ],
+      "interviewTip": "Clarify if you need one-to-one chat, group chat, media, search, and message ordering before overdesigning.",
+      "tradeOffs": [
+        "WebSockets give real-time behavior, but long-lived connections are expensive.",
+        "Strict ordering is useful, but harder at large scale.",
+        "Storing every event is powerful, but increases storage needs."
+      ],
+      "commonMistakes": [
+        "Ignoring offline users and reconnect logic.",
+        "Forgetting push notifications for inactive clients.",
+        "Saying messages are always delivered exactly once without explaining how."
+      ],
+      "relatedTopics": [
+        { "category": "components", "id": "queue", "title": "Queue" },
+        { "category": "interview-prep", "id": "apis-and-data", "title": "APIs and Data Design" }
+      ],
+      "sections": [
+        {
+          "title": "Core flow",
+          "paragraphs": [
+            "Clients keep a real-time connection to chat gateways. A message is accepted, stored, and then delivered to online receivers or queued for later delivery."
+          ],
+          "bullets": [
+            "Connection layer.",
+            "Message service.",
+            "Storage.",
+            "Notification path for offline users."
+          ]
+        },
+        {
+          "title": "Important interview questions",
+          "paragraphs": [
+            "Ask whether message order must be exact, whether group size can be large, and whether attachments or read receipts are needed."
+          ],
+          "bullets": [
+            "One-to-one or group?",
+            "Online presence required?",
+            "How much history must be stored?"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "news-feed",
+      "title": "Design a News Feed",
+      "tag": "Personalization",
+      "summary": "Build a system that shows users a feed of posts from people they follow, often with ranking and freshness trade-offs.",
+      "quickPoints": [
+        "Posts must be written somewhere and shown to many readers.",
+        "Feed generation can happen on write or on read.",
+        "Popularity skew creates hot spots."
+      ],
+      "whatItMeans": "A feed system gathers posts, decides which ones belong in a user's feed, and returns them in the right order.",
+      "whyItMatters": "This problem tests fan-out, caching, ranking, and heavy read patterns.",
+      "simpleExample": "If you follow ten people, your feed combines their new posts and sorts them so the app can show the most relevant ones first.",
+      "realWorldExamples": [
+        "Social media timelines.",
+        "Professional network feeds.",
+        "Content recommendation homepages."
+      ],
+      "interviewTip": "Explain the simple version first. Start with chronological feed before adding ranking and personalization.",
+      "tradeOffs": [
+        "Fan-out on write makes reads fast, but writes become expensive.",
+        "Fan-out on read makes writes easy, but reads become slower.",
+        "Heavy ranking improves relevance, but adds compute cost and delay."
+      ],
+      "commonMistakes": [
+        "Jumping straight into machine learning instead of basic feed generation.",
+        "Ignoring celebrity users with millions of followers.",
+        "Forgetting cache invalidation for fast-changing feeds."
+      ],
+      "relatedTopics": [
+        { "category": "fundamentals", "id": "partitioning", "title": "Partitioning and Sharding" },
+        { "category": "components", "id": "cache", "title": "Cache" }
+      ],
+      "sections": [
+        {
+          "title": "Useful baseline design",
+          "paragraphs": [
+            "A baseline design includes post service, follow graph storage, feed generation logic, and a cache for fast reads."
+          ],
+          "bullets": [
+            "Store post.",
+            "Find followers.",
+            "Update or compute feed.",
+            "Serve feed from cache when possible."
+          ]
+        }
+      ]
+    },
+    {
+      "id": "rate-limiter",
+      "title": "Design a Rate Limiter",
+      "tag": "Protection",
+      "summary": "Build a system that limits how often a user or client can make requests in a time window.",
+      "quickPoints": [
+        "Rate limiting protects systems and fair usage.",
+        "Checks must be very fast.",
+        "Distributed counters are often the tricky part."
+      ],
+      "whatItMeans": "A rate limiter tracks request counts and decides whether the next request should be allowed or blocked.",
+      "whyItMatters": "This problem tests fast lookups, distributed state, and fairness under heavy traffic.",
+      "simpleExample": "A public API may allow 100 requests per minute per API key and reject extra requests until the window resets.",
+      "realWorldExamples": [
+        "API gateways limiting traffic per client.",
+        "Login endpoints blocking brute-force attacks.",
+        "Messaging systems limiting spam from users."
+      ],
+      "interviewTip": "Say where the limiter sits, how the counter is stored, and how exact the algorithm needs to be.",
+      "tradeOffs": [
+        "Token bucket supports bursts, but needs token refill logic.",
+        "Sliding window is precise, but costs more to track.",
+        "Central storage is simple, but can become a bottleneck."
+      ],
+      "commonMistakes": [
+        "Ignoring distributed deployments with many gateway servers.",
+        "Treating every endpoint the same even when abuse patterns differ.",
+        "Using a slow database lookup on every request."
+      ],
+      "relatedTopics": [
+        { "category": "components", "id": "api-gateway", "title": "API Gateway and Proxy" },
+        { "category": "components", "id": "cache", "title": "Cache" }
+      ],
+      "sections": [
+        {
+          "title": "Good architecture shape",
+          "paragraphs": [
+            "A common pattern is to place the limiter near the gateway and use a fast in-memory store such as Redis for counters."
+          ],
+          "bullets": [
+            "Client request arrives.",
+            "Limiter checks counter.",
+            "Allow or reject quickly.",
+            "Return clear error message if blocked."
+          ]
+        }
+      ]
+    },
+    {
+      "id": "youtube",
+      "title": "Design YouTube",
+      "tag": "Media system",
+      "summary": "Build a video platform with uploads, processing, playback, metadata, and global delivery.",
+      "quickPoints": [
+        "Uploads are heavy writes.",
+        "Playback is a global read-heavy workload.",
+        "Video processing and CDN delivery are key."
+      ],
+      "whatItMeans": "You need a platform where creators upload videos and viewers can stream them smoothly from many locations.",
+      "whyItMatters": "This problem combines object storage, transcoding, CDN use, metadata indexing, and recommendation-friendly scaling.",
+      "simpleExample": "A creator uploads one video once, but millions of viewers may stream different versions of it later on many devices.",
+      "realWorldExamples": [
+        "Education video platforms.",
+        "Live and on-demand media apps.",
+        "Short-form and long-form content platforms."
+      ],
+      "interviewTip": "Split the system into upload path and playback path. That keeps the answer clean.",
+      "tradeOffs": [
+        "Precompute many video formats for smooth playback, but pay more storage and processing cost.",
+        "On-demand generation saves upfront work, but can delay playback.",
+        "Global CDN delivery is fast, but invalidation and regional rules add complexity."
+      ],
+      "commonMistakes": [
+        "Treating video files like small images.",
+        "Ignoring transcoding delay and worker scaling.",
+        "Forgetting metadata search, comments, or recommendation side data."
+      ],
+      "relatedTopics": [
+        { "category": "components", "id": "cdn", "title": "CDN" },
+        { "category": "components", "id": "queue", "title": "Queue" }
+      ],
+      "sections": [
+        {
+          "title": "Upload path",
+          "paragraphs": [
+            "The upload path usually goes from client to upload service to object storage, then a queue triggers transcoding workers."
+          ],
+          "bullets": [
+            "Chunked upload.",
+            "Store original video.",
+            "Queue processing jobs.",
+            "Write metadata and status."
+          ]
+        },
+        {
+          "title": "Playback path",
+          "paragraphs": [
+            "The playback path usually reads metadata from a service and serves video segments through a CDN so viewers see low latency."
+          ],
+          "bullets": [
+            "Serve manifest.",
+            "Serve video segments from edge.",
+            "Track watch events asynchronously."
+          ]
+        }
+      ]
+    },
+    {
+      "id": "uber",
+      "title": "Design Uber",
+      "tag": "Geo and matching",
+      "summary": "Build a system that tracks drivers, matches riders, manages trips, and updates locations in real time.",
+      "quickPoints": [
+        "Location updates arrive constantly.",
+        "Matching should be fast and local.",
+        "Trip state must stay correct even during failures."
+      ],
+      "whatItMeans": "You need a ride platform where riders request trips, nearby drivers receive matches, and both sides see live updates.",
+      "whyItMatters": "This problem combines real-time location, geospatial queries, dispatch logic, pricing, and fault tolerance.",
+      "simpleExample": "A rider requests a trip, the system finds nearby drivers, selects a good candidate, and keeps both sides updated as the trip moves forward.",
+      "realWorldExamples": [
+        "Ride-hailing apps.",
+        "Food delivery courier matching.",
+        "On-demand field service dispatch platforms."
+      ],
+      "interviewTip": "Separate location tracking, matching, and trip management. That avoids one giant fuzzy design.",
+      "tradeOffs": [
+        "Frequent location updates improve accuracy, but increase write load.",
+        "Centralized matching is simple, but regional dispatch may be faster.",
+        "Aggressive surge pricing responds quickly, but can hurt user trust."
+      ],
+      "commonMistakes": [
+        "Ignoring how often drivers send updates.",
+        "Mixing trip state logic with raw location ingestion.",
+        "Forgetting idempotency when retries happen during trip updates."
+      ],
+      "relatedTopics": [
+        { "category": "components", "id": "load-balancer", "title": "Load Balancer" },
+        { "category": "fundamentals", "id": "availability", "title": "Availability" }
+      ],
+      "sections": [
+        {
+          "title": "Key services",
+          "paragraphs": [
+            "A practical design has location ingestion, geospatial index or store, matching service, trip service, pricing service, and notification path."
+          ],
+          "bullets": [
+            "Store latest driver locations.",
+            "Search nearby drivers.",
+            "Create trip state.",
+            "Push updates to rider and driver."
+          ]
+        }
+      ]
+    },
+    {
+      "id": "dropbox",
+      "title": "Design Dropbox",
+      "tag": "Storage and sync",
+      "summary": "Build a file storage system that uploads files, syncs them across devices, and keeps metadata and versions organized.",
+      "quickPoints": [
+        "Large files should be split into chunks.",
+        "Metadata and file content usually scale differently.",
+        "Conflict handling matters when multiple devices edit."
+      ],
+      "whatItMeans": "You need a service where users upload files, store them safely, and access the same versions from many devices.",
+      "whyItMatters": "This problem tests chunking, metadata design, syncing, conflict resolution, and background processing.",
+      "simpleExample": "A user edits a document on a laptop and then sees the updated version on a phone after sync finishes.",
+      "realWorldExamples": [
+        "Cloud file storage platforms.",
+        "Team file collaboration tools.",
+        "Photo backup apps with cross-device sync."
+      ],
+      "interviewTip": "Split the problem into file content storage, metadata storage, and sync orchestration.",
+      "tradeOffs": [
+        "Chunk-level sync saves bandwidth, but increases implementation complexity.",
+        "Frequent sync feels fast, but costs more network and battery.",
+        "Automatic conflict merging is convenient, but risky for binary files."
+      ],
+      "commonMistakes": [
+        "Treating metadata and blobs as if they belong in the same storage design.",
+        "Ignoring version history.",
+        "Skipping conflict resolution for offline edits."
+      ],
+      "relatedTopics": [
+        { "category": "fundamentals", "id": "consistency", "title": "Consistency" },
+        { "category": "interview-prep", "id": "high-level-design", "title": "High-level Design" }
+      ],
+      "sections": [
+        {
+          "title": "A simple system split",
+          "paragraphs": [
+            "One useful pattern is to store file chunks in object storage and store file metadata, version pointers, and permissions in a structured metadata service."
+          ],
+          "bullets": [
+            "Chunk upload.",
+            "Metadata update.",
+            "Background sync notifications.",
+            "Version tracking."
+          ]
+        },
+        {
+          "title": "Where conflicts appear",
+          "paragraphs": [
+            "Conflicts happen when users edit the same file from different devices before sync completes. Text files may merge more easily than binary files."
+          ],
+          "bullets": [
+            "Keep version IDs.",
+            "Detect concurrent edits.",
+            "Create conflict copies when needed."
+          ]
+        }
+      ]
+    },
+    {
+      "id": "netflix",
+      "title": "Design Netflix",
+      "tag": "Streaming platform",
+      "summary": "Build a video streaming system that delivers movies and shows smoothly to a huge global audience.",
+      "quickPoints": [
+        "Playback is the hottest path.",
+        "Catalog, recommendations, and streaming are different subsystems.",
+        "CDN and adaptive streaming are central."
+      ],
+      "whatItMeans": "You need a platform where users discover content, start playback quickly, and continue streaming reliably as network conditions change.",
+      "whyItMatters": "This problem tests large-scale media delivery, metadata services, recommendation-friendly architecture, and global read performance.",
+      "simpleExample": "A user opens the app, sees a catalog, starts a movie in seconds, and the stream adjusts quality as the network changes.",
+      "realWorldExamples": [
+        "Movie and TV streaming products.",
+        "Sports replay platforms.",
+        "Large educational video libraries."
+      ],
+      "interviewTip": "Split discovery, playback, and analytics into separate conversations so the answer stays clean.",
+      "tradeOffs": [
+        "Pre-encoded formats improve startup speed, but increase storage cost.",
+        "Global CDN delivery lowers latency, but invalidation and regional rules get harder.",
+        "Heavy recommendations improve engagement, but add another large compute system."
+      ],
+      "commonMistakes": [
+        "Mixing recommendation design with the playback path too early.",
+        "Ignoring adaptive bitrate streaming.",
+        "Treating large media files like simple database rows."
+      ],
+      "stepFlow": [
+        {
+          "step": "1",
+          "title": "Show the catalog",
+          "description": "Metadata and recommendation services build the homepage and title details."
+        },
+        {
+          "step": "2",
+          "title": "Start playback",
+          "description": "Playback service checks entitlement and returns the stream manifest."
+        },
+        {
+          "step": "3",
+          "title": "Stream from the edge",
+          "description": "The client fetches video segments from a CDN close to the user."
+        },
+        {
+          "step": "4",
+          "title": "Track and improve",
+          "description": "Watch events flow asynchronously into analytics and recommendation systems."
+        }
+      ],
+      "diagramBlocks": [
+        {
+          "title": "Netflix architecture view",
+          "columns": [
+            {
+              "label": "User path",
+              "items": [
+                "Open app",
+                "Browse catalog",
+                "Request playback",
+                "Stream video"
+              ]
+            },
+            {
+              "label": "Core services",
+              "items": [
+                "Catalog service",
+                "Playback service",
+                "CDN delivery",
+                "Analytics pipeline"
+              ]
+            },
+            {
+              "label": "Scale concerns",
+              "items": [
+                "High read traffic",
+                "Global latency",
+                "Adaptive bitrate",
+                "Large media storage"
+              ]
+            }
+          ],
+          "footer": "Keep the playback path lean. Discovery and recommendation can be discussed as separate supporting systems."
+        }
+      ],
+      "designChecklist": [
+        "Catalog metadata",
+        "Playback authorization",
+        "Manifest and segment delivery",
+        "CDN strategy",
+        "Watch analytics"
+      ],
+      "whatInterviewerExpects": [
+        "A clean split between metadata, playback, and analytics.",
+        "Awareness that CDN and adaptive streaming are essential.",
+        "Clear explanation of why global reads dominate the design."
+      ],
+      "followUpQuestions": [
+        "How would you support downloads for offline viewing?",
+        "What changes for live streaming?",
+        "Where would recommendations fit into this architecture?"
+      ],
+      "relatedTopics": [
+        { "category": "components", "id": "cdn", "title": "CDN" },
+        { "category": "components", "id": "object-storage", "title": "Object Storage" }
+      ],
+      "sections": [
+        {
+          "title": "Main system split",
+          "paragraphs": [
+            "A strong answer separates metadata services from the actual media delivery path. The playback path should stay simple and fast."
+          ],
+          "bullets": [
+            "Catalog and search for discovery.",
+            "Playback service for entitlement and manifests.",
+            "CDN for segment delivery.",
+            "Async analytics for watch tracking."
+          ]
+        }
+      ]
+    },
+    {
+      "id": "whatsapp",
+      "title": "Design WhatsApp",
+      "tag": "Messaging at scale",
+      "summary": "Build a large global messaging platform with fast delivery, offline sync, media sharing, and strong reliability.",
+      "quickPoints": [
+        "Realtime messaging is central.",
+        "Offline delivery matters as much as online delivery.",
+        "Group fan-out and media storage add major scale pressure."
+      ],
+      "whatItMeans": "You need a system that sends messages quickly between users and groups, keeps message history, and supports media attachments across devices.",
+      "whyItMatters": "This problem combines persistent connections, fan-out, storage, notification delivery, and global scale.",
+      "simpleExample": "A user sends a text and a photo in one city. The receiver should get them quickly, even if they reconnect later from another device.",
+      "realWorldExamples": [
+        "Global chat platforms.",
+        "Business messaging apps.",
+        "Community group chat products."
+      ],
+      "interviewTip": "Separate text delivery, media delivery, and presence. Do not put every messaging feature into one service box.",
+      "tradeOffs": [
+        "Realtime connections feel fast, but open connections are expensive.",
+        "Large groups increase fan-out cost.",
+        "End-to-end security can improve privacy, but may reduce server-side feature options."
+      ],
+      "commonMistakes": [
+        "Ignoring offline devices and message sync.",
+        "Not explaining group fan-out.",
+        "Forgetting media upload and download flow."
+      ],
+      "stepFlow": [
+        {
+          "step": "1",
+          "title": "User sends message",
+          "description": "Client sends the message to a chat gateway over a persistent connection."
+        },
+        {
+          "step": "2",
+          "title": "Store and route",
+          "description": "Message service writes the message and routes it to online or offline receivers."
+        },
+        {
+          "step": "3",
+          "title": "Deliver or queue",
+          "description": "Online users receive it instantly. Offline users get it after reconnect or push notification."
+        },
+        {
+          "step": "4",
+          "title": "Sync other devices",
+          "description": "The system updates message state across the sender's and receiver's devices."
+        }
+      ],
+      "diagramBlocks": [
+        {
+          "title": "WhatsApp architecture view",
+          "columns": [
+            {
+              "label": "Client path",
+              "items": [
+                "Persistent connection",
+                "Send message",
+                "Receive delivery updates"
+              ]
+            },
+            {
+              "label": "Core services",
+              "items": [
+                "Chat gateway",
+                "Message store",
+                "Presence service",
+                "Push notification service"
+              ]
+            },
+            {
+              "label": "Hard parts",
+              "items": [
+                "Offline sync",
+                "Group fan-out",
+                "Media transfer",
+                "Ordering"
+              ]
+            }
+          ],
+          "footer": "Keep the message path separate from media upload and download. That makes the design easier to explain."
+        }
+      ],
+      "whatInterviewerExpects": [
+        "Clear handling of online and offline users.",
+        "A plan for group messaging and message ordering.",
+        "Awareness that media should use a different path from text."
+      ],
+      "followUpQuestions": [
+        "How do you scale group chats with many members?",
+        "What changes if read receipts are required?",
+        "How would you sync history across devices?"
+      ],
+      "relatedTopics": [
+        { "category": "components", "id": "websocket", "title": "WebSocket" },
+        { "category": "components", "id": "object-storage", "title": "Object Storage" }
+      ],
+      "sections": [
+        {
+          "title": "Good interview structure",
+          "paragraphs": [
+            "Start with one-to-one text messages, then expand to groups, media, and multi-device sync only after the basic path is solid."
+          ],
+          "bullets": [
+            "One-to-one text first.",
+            "Then offline sync.",
+            "Then groups and media.",
+            "Then advanced features."
+          ]
+        }
+      ]
+    },
+    {
+      "id": "google-drive",
+      "title": "Design Google Drive",
+      "tag": "Collaboration and storage",
+      "summary": "Build a cloud storage and collaboration system with file upload, versioning, sharing, sync, and large-scale metadata handling.",
+      "quickPoints": [
+        "Files and metadata should be separated.",
+        "Sync and versioning are core features.",
+        "Collaboration adds consistency and conflict challenges."
+      ],
+      "whatItMeans": "You need a system where users upload files, share them, sync changes across devices, and sometimes edit them collaboratively.",
+      "whyItMatters": "This problem mixes storage, sync, permissions, metadata, and collaboration concerns in one product.",
+      "simpleExample": "A user uploads a presentation, shares it with a teammate, and both users can see the latest version on laptop and phone.",
+      "realWorldExamples": [
+        "Cloud document platforms.",
+        "Team drive products.",
+        "Shared company knowledge storage."
+      ],
+      "interviewTip": "Separate blob storage, metadata, and collaboration logic. That keeps the answer modular.",
+      "tradeOffs": [
+        "Chunk-level sync saves bandwidth, but increases complexity.",
+        "Strong collaboration support improves teamwork, but raises consistency challenges.",
+        "Version history improves safety, but adds storage cost."
+      ],
+      "commonMistakes": [
+        "Treating files and metadata as one storage problem.",
+        "Ignoring permission checks and sharing links.",
+        "Skipping version history and conflict handling."
+      ],
+      "stepFlow": [
+        {
+          "step": "1",
+          "title": "Upload file",
+          "description": "Client uploads file chunks to object storage and creates metadata records."
+        },
+        {
+          "step": "2",
+          "title": "Sync metadata",
+          "description": "Metadata service tracks ownership, versions, permissions, and file state."
+        },
+        {
+          "step": "3",
+          "title": "Share and access",
+          "description": "Other users access the file through permission checks and metadata lookup."
+        },
+        {
+          "step": "4",
+          "title": "Update and version",
+          "description": "New edits create new versions and trigger sync notifications to devices."
+        }
+      ],
+      "diagramBlocks": [
+        {
+          "title": "Google Drive architecture view",
+          "columns": [
+            {
+              "label": "Storage path",
+              "items": [
+                "Chunk upload",
+                "Object storage",
+                "Versioned blobs"
+              ]
+            },
+            {
+              "label": "Control path",
+              "items": [
+                "Metadata service",
+                "Permission service",
+                "Sync notifier"
+              ]
+            },
+            {
+              "label": "Key concerns",
+              "items": [
+                "Conflict handling",
+                "Sharing links",
+                "Device sync",
+                "Version history"
+              ]
+            }
+          ]
+        }
+      ],
+      "whatInterviewerExpects": [
+        "A clear split between file content and metadata.",
+        "Awareness of versioning and sharing permissions.",
+        "A plan for sync across multiple devices."
+      ],
+      "followUpQuestions": [
+        "How would you support collaborative document editing?",
+        "How do you handle a failed chunk upload?",
+        "What if two users edit offline and sync later?"
+      ],
+      "relatedTopics": [
+        { "category": "components", "id": "object-storage", "title": "Object Storage" },
+        { "category": "fundamentals", "id": "idempotency", "title": "Idempotency" }
+      ],
+      "sections": [
+        {
+          "title": "Metadata matters",
+          "paragraphs": [
+            "Many file systems look simple until metadata queries grow. Search, sharing, file listings, and version tracking all depend on good metadata design."
+          ],
+          "bullets": [
+            "Owner and permissions.",
+            "Folder structure.",
+            "Version pointers.",
+            "Device sync state."
+          ]
+        }
+      ]
+    },
+    {
+      "id": "instagram",
+      "title": "Design Instagram",
+      "tag": "Social media",
+      "summary": "Build a photo and short-video social platform with uploads, feeds, likes, comments, follow graph, and notifications.",
+      "quickPoints": [
+        "Media upload and feed reading are both important.",
+        "The follow graph drives feed and notification behavior.",
+        "Hot users create skew and fan-out challenges."
+      ],
+      "whatItMeans": "You need a social media app where users post media, follow others, browse feeds, and interact with content in near real time.",
+      "whyItMatters": "This problem combines media storage, feeds, graph relationships, engagement actions, and notification delivery.",
+      "simpleExample": "A user uploads a photo, followers see it in the feed, some users like it, and the owner receives notifications.",
+      "realWorldExamples": [
+        "Photo-sharing products.",
+        "Short-form creator platforms.",
+        "Visual social media communities."
+      ],
+      "interviewTip": "Split the problem into media upload, feed generation, and engagement actions instead of mixing everything together.",
+      "tradeOffs": [
+        "Fan-out on write speeds feed reads, but can be expensive for large accounts.",
+        "Rich media features improve engagement, but increase storage and CDN cost.",
+        "Realtime notifications feel good, but add extra event flow complexity."
+      ],
+      "commonMistakes": [
+        "Ignoring the follow graph.",
+        "Treating media processing as a small detail.",
+        "Skipping comment, like, and notification fan-out."
+      ],
+      "stepFlow": [
+        {
+          "step": "1",
+          "title": "Upload media",
+          "description": "The client uploads media, which is processed and stored in object storage."
+        },
+        {
+          "step": "2",
+          "title": "Create post metadata",
+          "description": "Post service records owner, captions, tags, and media locations."
+        },
+        {
+          "step": "3",
+          "title": "Update feeds",
+          "description": "Feed systems fan out or compute updates for followers."
+        },
+        {
+          "step": "4",
+          "title": "Send engagement updates",
+          "description": "Likes, comments, and notifications move through async event paths."
+        }
+      ],
+      "diagramBlocks": [
+        {
+          "title": "Instagram architecture view",
+          "columns": [
+            {
+              "label": "Content path",
+              "items": [
+                "Upload media",
+                "Process images and video",
+                "Store media"
+              ]
+            },
+            {
+              "label": "Social path",
+              "items": [
+                "Follow graph",
+                "Feed service",
+                "Like and comment service"
+              ]
+            },
+            {
+              "label": "Scale concerns",
+              "items": [
+                "Hot creators",
+                "Feed freshness",
+                "Notification fan-out"
+              ]
+            }
+          ]
+        }
+      ],
+      "whatInterviewerExpects": [
+        "A clear split between media storage and feed generation.",
+        "Awareness of the follow graph and celebrity skew.",
+        "A plan for notifications and engagement events."
+      ],
+      "relatedTopics": [
+        { "category": "case-studies", "id": "news-feed", "title": "Design a News Feed" },
+        { "category": "components", "id": "object-storage", "title": "Object Storage" }
+      ],
+      "sections": [
+        {
+          "title": "Most important split",
+          "paragraphs": [
+            "Keep upload and feed generation as separate conversations. One is write and media heavy. The other is read and ranking heavy."
+          ],
+          "bullets": [
+            "Upload service.",
+            "Media processing.",
+            "Feed generation.",
+            "Notification events."
+          ]
+        }
+      ]
+    },
+    {
+      "id": "x-twitter",
+      "title": "Design X or Twitter",
+      "tag": "Realtime social feed",
+      "summary": "Build a social platform with short posts, timelines, follow graph, search, trends, and realtime updates.",
+      "quickPoints": [
+        "Timelines are read-heavy.",
+        "Trending and search add separate systems.",
+        "Very popular accounts create extreme fan-out pressure."
+      ],
+      "whatItMeans": "You need a platform where users post short messages, follow other users, and receive updated timelines quickly.",
+      "whyItMatters": "This classic problem tests feed design, graph scale, hot-key handling, search, and event-driven updates.",
+      "simpleExample": "A celebrity posts once, but millions of followers may need that post in their timelines almost immediately.",
+      "realWorldExamples": [
+        "Microblogging platforms.",
+        "Breaking-news social platforms.",
+        "Realtime event commentary products."
+      ],
+      "interviewTip": "Talk about timelines first. Search, trends, and notifications can come after the core timeline path is clear.",
+      "tradeOffs": [
+        "Fan-out on write is fast for readers, but hard for huge accounts.",
+        "Fan-out on read saves writes, but can slow heavy readers.",
+        "Realtime ranking and trends feel lively, but add more streaming infrastructure."
+      ],
+      "commonMistakes": [
+        "Not addressing celebrity skew.",
+        "Mixing search and timeline architecture from the start.",
+        "Ignoring caching and timeline freshness."
+      ],
+      "stepFlow": [
+        {
+          "step": "1",
+          "title": "Create post",
+          "description": "The post service saves the post and emits an event."
+        },
+        {
+          "step": "2",
+          "title": "Update timelines",
+          "description": "Timeline services fan out or compute feeds for followers."
+        },
+        {
+          "step": "3",
+          "title": "Serve readers quickly",
+          "description": "Caches hold hot timeline data for heavy readers."
+        },
+        {
+          "step": "4",
+          "title": "Power search and trends",
+          "description": "Events also update search indexes and trend systems."
+        }
+      ],
+      "diagramBlocks": [
+        {
+          "title": "Timeline architecture view",
+          "columns": [
+            {
+              "label": "Write path",
+              "items": [
+                "Post service",
+                "Event emit",
+                "Timeline update"
+              ]
+            },
+            {
+              "label": "Read path",
+              "items": [
+                "Timeline cache",
+                "Reader API",
+                "Follow graph lookup"
+              ]
+            },
+            {
+              "label": "Extra systems",
+              "items": [
+                "Search index",
+                "Trends pipeline",
+                "Notification service"
+              ]
+            }
+          ]
+        }
+      ],
+      "whatInterviewerExpects": [
+        "A strong explanation of timeline generation.",
+        "Handling of celebrity skew.",
+        "Separation between timeline, search, and trends."
+      ],
+      "relatedTopics": [
+        { "category": "case-studies", "id": "news-feed", "title": "Design a News Feed" },
+        { "category": "components", "id": "search-systems", "title": "Search Systems" }
+      ],
+      "sections": [
+        {
+          "title": "Where the pressure appears",
+          "paragraphs": [
+            "The biggest pressure often appears when one write must quickly affect huge numbers of readers."
+          ],
+          "bullets": [
+            "Hot accounts.",
+            "Timeline cache pressure.",
+            "Search freshness.",
+            "Realtime event volume."
+          ]
+        }
+      ]
+    },
+    {
+      "id": "zoom",
+      "title": "Design Zoom",
+      "tag": "Realtime communication",
+      "summary": "Build a video meeting platform with live audio/video transport, meeting coordination, chat, recording, and participant management.",
+      "quickPoints": [
+        "Realtime media quality is the core challenge.",
+        "Meeting state and signaling are different from media transport.",
+        "Recording and chat can be separate supporting paths."
+      ],
+      "whatItMeans": "You need a system where users join live meetings, exchange audio and video in real time, and manage meeting controls and chat.",
+      "whyItMatters": "This problem combines realtime transport, session coordination, state management, and large bandwidth handling.",
+      "simpleExample": "Ten people join a video call. They expect low delay audio, stable video, mute controls, chat, and maybe cloud recording.",
+      "realWorldExamples": [
+        "Video conferencing tools.",
+        "Virtual classroom platforms.",
+        "Realtime remote collaboration products."
+      ],
+      "interviewTip": "Separate meeting setup and participant state from the actual audio and video path.",
+      "tradeOffs": [
+        "Lower latency improves conversation quality, but is harder over bad networks.",
+        "Server-side media routing improves manageability, but increases bandwidth cost.",
+        "Recording adds value, but creates a heavy storage pipeline."
+      ],
+      "commonMistakes": [
+        "Treating media streaming like normal HTTP APIs.",
+        "Ignoring network quality adaptation.",
+        "Not separating signaling from media transport."
+      ],
+      "stepFlow": [
+        {
+          "step": "1",
+          "title": "Create or join meeting",
+          "description": "Meeting service authenticates users and returns meeting state."
+        },
+        {
+          "step": "2",
+          "title": "Negotiate media path",
+          "description": "Signaling sets up how audio and video will be exchanged."
+        },
+        {
+          "step": "3",
+          "title": "Exchange live media",
+          "description": "Participants send and receive audio and video with low delay."
+        },
+        {
+          "step": "4",
+          "title": "Support extras",
+          "description": "Chat, recording, participant controls, and analytics run beside the media path."
+        }
+      ],
+      "diagramBlocks": [
+        {
+          "title": "Zoom architecture view",
+          "columns": [
+            {
+              "label": "Control plane",
+              "items": [
+                "Meeting service",
+                "Auth",
+                "Participant state",
+                "Chat"
+              ]
+            },
+            {
+              "label": "Media plane",
+              "items": [
+                "Audio stream",
+                "Video stream",
+                "Media router",
+                "Quality adaptation"
+              ]
+            },
+            {
+              "label": "Support systems",
+              "items": [
+                "Recording",
+                "Analytics",
+                "Notifications"
+              ]
+            }
+          ]
+        }
+      ],
+      "whatInterviewerExpects": [
+        "A clear split between signaling and media transport.",
+        "Awareness of low latency and network variability.",
+        "A basic plan for many participants and optional recording."
+      ],
+      "relatedTopics": [
+        { "category": "components", "id": "websocket", "title": "WebSocket" },
+        { "category": "components", "id": "load-balancer", "title": "Load Balancer" }
+      ],
+      "sections": [
+        {
+          "title": "Keep the answer manageable",
+          "paragraphs": [
+            "You do not need codec-level detail in most interviews. Focus on meeting coordination, low-latency media routing, and scale concerns."
+          ],
+          "bullets": [
+            "Join flow.",
+            "Realtime transport.",
+            "Participant state.",
+            "Recording as an extra path."
+          ]
+        }
+      ]
+    },
+    {
+      "id": "payment-system",
+      "title": "Design a Payment System",
+      "tag": "Correctness first",
+      "summary": "Build a system that creates, authorizes, captures, and tracks payments safely with strong correctness and auditability.",
+      "quickPoints": [
+        "Correctness matters more than flashy scale ideas.",
+        "Idempotency is essential.",
+        "Audit logs, retries, and state transitions must be clear."
+      ],
+      "whatItMeans": "You need a payment platform that takes payment requests, communicates with processors, records state changes, and avoids double charging.",
+      "whyItMatters": "This problem tests correctness, reliability, idempotency, and clear state modeling under failure.",
+      "simpleExample": "A user clicks pay, the request times out, and the app retries. The system must not charge the card twice.",
+      "realWorldExamples": [
+        "Ecommerce checkout systems.",
+        "Subscription billing platforms.",
+        "Marketplace payout and settlement systems."
+      ],
+      "interviewTip": "Keep the state machine clear: created, authorized, captured, failed, refunded, or cancelled depending on the flow.",
+      "tradeOffs": [
+        "Strong correctness improves trust, but may add latency and operational checks.",
+        "Synchronous confirmation feels faster to users, but external processors may be slow.",
+        "Rich audit logging improves safety, but adds storage and privacy considerations."
+      ],
+      "commonMistakes": [
+        "Ignoring idempotency.",
+        "Not modeling payment states clearly.",
+        "Treating payment retries like normal retries without side-effect protection."
+      ],
+      "stepFlow": [
+        {
+          "step": "1",
+          "title": "Create payment request",
+          "description": "Client sends a payment request with an idempotency key."
+        },
+        {
+          "step": "2",
+          "title": "Validate and authorize",
+          "description": "Payment service validates the request and sends authorization to an external processor."
+        },
+        {
+          "step": "3",
+          "title": "Store final state",
+          "description": "The system records success, failure, or pending state in a durable store."
+        },
+        {
+          "step": "4",
+          "title": "Trigger follow-up actions",
+          "description": "Order confirmation, ledger updates, and notifications happen after payment state is safe."
+        }
+      ],
+      "diagramBlocks": [
+        {
+          "title": "Payment architecture view",
+          "columns": [
+            {
+              "label": "Request path",
+              "items": [
+                "Checkout client",
+                "Payment API",
+                "Idempotency key"
+              ]
+            },
+            {
+              "label": "Core systems",
+              "items": [
+                "Payment state store",
+                "External processor",
+                "Ledger or audit log"
+              ]
+            },
+            {
+              "label": "Risk points",
+              "items": [
+                "Duplicate charges",
+                "Processor timeout",
+                "Reconciliation mismatch"
+              ]
+            }
+          ],
+          "footer": "Correctness, auditability, and safe retries matter more here than fancy scaling words."
+        }
+      ],
+      "designChecklist": [
+        "Idempotency keys",
+        "Payment state model",
+        "Audit logging",
+        "Retry policy",
+        "Reconciliation"
+      ],
+      "whatInterviewerExpects": [
+        "Strong emphasis on correctness.",
+        "A clear payment state machine.",
+        "A safe retry and idempotency strategy."
+      ],
+      "followUpQuestions": [
+        "How do you handle a timeout after the processor may already have charged?",
+        "How do you reconcile internal and external payment records?",
+        "Would you separate authorization and capture?"
+      ],
+      "relatedTopics": [
+        { "category": "fundamentals", "id": "idempotency", "title": "Idempotency" },
+        { "category": "fundamentals", "id": "consistency", "title": "Consistency" }
+      ],
+      "sections": [
+        {
+          "title": "What matters most",
+          "paragraphs": [
+            "This is not just another CRUD system. The hardest part is making sure the money state stays correct under retries, failures, and slow external dependencies."
+          ],
+          "bullets": [
+            "Use strong state tracking.",
+            "Protect against duplicates.",
+            "Reconcile with external systems.",
+            "Keep a clear audit trail."
+          ]
+        }
+      ]
+    },
+    {
+      "id": "notification-system",
+      "title": "Design a Notification System",
+      "tag": "Multi-channel delivery",
+      "summary": "Build a system that sends email, push, SMS, or in-app notifications at scale while respecting priority, preference, and delivery reliability.",
+      "quickPoints": [
+        "Notifications are often asynchronous.",
+        "Different channels have different delivery rules.",
+        "User preferences and rate limits matter."
+      ],
+      "whatItMeans": "You need a platform that receives events, decides which users should be notified, chooses channels, and sends messages reliably.",
+      "whyItMatters": "This problem tests event-driven design, fan-out, template management, delivery pipelines, and overload protection.",
+      "simpleExample": "A user gets an order shipped event. The system may send push first, then email, and may skip SMS if the user disabled it.",
+      "realWorldExamples": [
+        "Order updates and account alerts.",
+        "Social app engagement notifications.",
+        "Marketing and reminder systems."
+      ],
+      "interviewTip": "Separate event ingestion, preference lookup, message composition, and channel delivery.",
+      "tradeOffs": [
+        "More channels improve reach, but increase delivery complexity.",
+        "Realtime delivery feels useful, but some notifications can be batched more cheaply.",
+        "Aggressive fan-out helps engagement, but can become spam without limits."
+      ],
+      "commonMistakes": [
+        "Sending notifications without checking preferences.",
+        "Treating SMS, push, and email as if they behave the same way.",
+        "Ignoring deduplication and rate limits."
+      ],
+      "stepFlow": [
+        {
+          "step": "1",
+          "title": "Receive event",
+          "description": "The notification system receives an event from another service."
+        },
+        {
+          "step": "2",
+          "title": "Decide who should get what",
+          "description": "Preference and rules services decide channels, templates, and priority."
+        },
+        {
+          "step": "3",
+          "title": "Queue delivery work",
+          "description": "Messages move into separate channel-specific queues and workers."
+        },
+        {
+          "step": "4",
+          "title": "Track delivery results",
+          "description": "Delivery status, retries, and user interaction events are recorded."
+        }
+      ],
+      "diagramBlocks": [
+        {
+          "title": "Notification architecture view",
+          "columns": [
+            {
+              "label": "Ingestion",
+              "items": [
+                "Event received",
+                "Template lookup",
+                "Preference checks"
+              ]
+            },
+            {
+              "label": "Delivery",
+              "items": [
+                "Email worker",
+                "Push worker",
+                "SMS worker"
+              ]
+            },
+            {
+              "label": "Protection",
+              "items": [
+                "Rate limiting",
+                "Deduplication",
+                "Retry policy",
+                "Priority queues"
+              ]
+            }
+          ]
+        }
+      ],
+      "whatInterviewerExpects": [
+        "A clean event-driven design.",
+        "Respect for user preference and channel differences.",
+        "A plan for spikes, retries, and deduplication."
+      ],
+      "followUpQuestions": [
+        "How would you avoid sending duplicate notifications?",
+        "What if a push provider is temporarily down?",
+        "How would you support high-priority notifications during overload?"
+      ],
+      "relatedTopics": [
+        { "category": "components", "id": "pub-sub", "title": "Pub/Sub" },
+        { "category": "fundamentals", "id": "load-shedding", "title": "Load Shedding" }
+      ],
+      "sections": [
+        {
+          "title": "Where most designs go wrong",
+          "paragraphs": [
+            "Many simple notification designs forget that preferences, limits, retries, and delivery providers are all different from one another."
+          ],
+          "bullets": [
+            "User preference checks.",
+            "Template system.",
+            "Channel-specific workers.",
+            "Delivery tracking."
+          ]
+        }
+      ]
+    }
+  ]
+}

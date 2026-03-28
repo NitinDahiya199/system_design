@@ -1,0 +1,678 @@
+{
+  "category": "components",
+  "label": "Components",
+  "heroEyebrow": "Components",
+  "heroTitle": "Understand the building blocks you will mention in almost every architecture discussion.",
+  "heroDescription": "These are the parts engineers combine to make systems faster, safer, easier to scale, and easier to operate.",
+  "cardIntro": "Open a component to see what it does, when to use it, simple examples, and common interview trade-offs.",
+  "items": [
+    {
+      "id": "load-balancer",
+      "title": "Load Balancer",
+      "tag": "Traffic control",
+      "summary": "A load balancer spreads traffic across multiple servers so one server does not take everything.",
+      "quickPoints": [
+        "It improves reliability and better uses server capacity.",
+        "It can stop sending traffic to unhealthy servers.",
+        "It is often the front door of a service."
+      ],
+      "whatItMeans": "A load balancer sits in front of a group of servers and decides which one should receive each request.",
+      "whyItMatters": "Without it, one server can become overloaded while others sit idle. It also becomes harder to survive server failures.",
+      "simpleExample": "Think of a receptionist sending customers to the next free counter instead of making everyone stand in one line.",
+      "realWorldExamples": [
+        "An ecommerce site sends checkout traffic across many app servers.",
+        "A media service routes users to healthy streaming gateways.",
+        "An internal API platform uses a load balancer to spread traffic across containers."
+      ],
+      "interviewTip": "Mention health checks, routing policy, and whether sessions must stay on the same server.",
+      "tradeOffs": [
+        "Sticky sessions make some apps easier, but hurt even traffic distribution.",
+        "Global routing improves user latency, but adds more networking complexity.",
+        "One load balancer is simple, but you need redundancy to avoid a single point of failure."
+      ],
+      "commonMistakes": [
+        "Forgetting that the load balancer itself must also be reliable.",
+        "Ignoring session state when requests can land on different servers.",
+        "Using round robin only because it sounds simple, even when smarter routing is needed."
+      ],
+      "relatedTopics": [
+        { "category": "fundamentals", "id": "availability", "title": "Availability" },
+        { "category": "case-studies", "id": "uber", "title": "Design Uber" }
+      ],
+      "sections": [
+        {
+          "title": "What it usually does",
+          "paragraphs": [
+            "A load balancer receives traffic first, checks which backend servers are healthy, and forwards the request to one of them."
+          ],
+          "bullets": [
+            "Distributes load.",
+            "Removes dead servers from rotation.",
+            "Can terminate TLS and enforce simple policies."
+          ]
+        }
+      ]
+    },
+    {
+      "id": "cache",
+      "title": "Cache",
+      "tag": "Speed",
+      "summary": "A cache stores often-used data in a faster place so users do not wait on slower systems each time.",
+      "quickPoints": [
+        "Caches reduce repeated work.",
+        "They improve response time and reduce database pressure.",
+        "They can return stale data if updates are not handled carefully."
+      ],
+      "whatItMeans": "A cache is a temporary storage layer that keeps data likely to be needed again soon.",
+      "whyItMatters": "Repeatedly reading the same item from a database is wasteful. A cache can make hot data much faster to serve.",
+      "simpleExample": "Keeping your most used notebooks on your desk is faster than walking to a storage room every time.",
+      "realWorldExamples": [
+        "A product page cache stores popular item details.",
+        "A CDN caches images near users.",
+        "A social app caches hot profiles and trending posts."
+      ],
+      "interviewTip": "Explain where the cache lives and how stale data is handled.",
+      "tradeOffs": [
+        "Fast reads come with invalidation complexity.",
+        "Big caches reduce backend load, but increase memory cost.",
+        "Long TTL values improve hit rate, but can show old data longer."
+      ],
+      "commonMistakes": [
+        "Saying 'add cache' without describing what data is cached.",
+        "Ignoring cache misses and stampedes.",
+        "Treating cached data as if it is always fresh."
+      ],
+      "relatedTopics": [
+        { "category": "fundamentals", "id": "latency-throughput", "title": "Latency and Throughput" },
+        { "category": "case-studies", "id": "youtube", "title": "Design YouTube" }
+      ],
+      "sections": [
+        {
+          "title": "Common cache locations",
+          "paragraphs": [
+            "Caching can happen in the browser, CDN, app server, or database side. Each location solves a different performance problem."
+          ],
+          "bullets": [
+            "Browser cache: good for static assets.",
+            "CDN cache: good for global content delivery.",
+            "Application cache: good for hot database reads."
+          ]
+        }
+      ]
+    },
+    {
+      "id": "queue",
+      "title": "Queue",
+      "tag": "Async work",
+      "summary": "A queue lets one service hand work to another service later instead of doing everything right away.",
+      "quickPoints": [
+        "Queues smooth traffic spikes.",
+        "They decouple producers from consumers.",
+        "They are useful when work can happen after the user gets a response."
+      ],
+      "whatItMeans": "A queue stores tasks or messages until another service is ready to process them.",
+      "whyItMatters": "Not every job must complete during the user request. Queues help systems stay responsive and more stable under bursty traffic.",
+      "simpleExample": "A bakery can take orders quickly and place them in a line for the kitchen instead of baking every cake at the front desk.",
+      "realWorldExamples": [
+        "A signup service queues welcome emails.",
+        "A video platform queues transcoding jobs after upload.",
+        "A marketplace queues search indexing after product updates."
+      ],
+      "interviewTip": "Call out retry behavior, duplicate messages, and what happens if consumers fall behind.",
+      "tradeOffs": [
+        "Queues improve resilience, but add delay.",
+        "At-least-once delivery is robust, but consumers must handle duplicates.",
+        "Ordering can be useful, but strict ordering may reduce scale."
+      ],
+      "commonMistakes": [
+        "Using a queue even when the user needs an immediate answer.",
+        "Ignoring dead-letter queues for repeated failures.",
+        "Assuming messages are processed exactly once without extra work."
+      ],
+      "relatedTopics": [
+        { "category": "interview-prep", "id": "bottlenecks-and-tradeoffs", "title": "Bottlenecks and Trade-offs" },
+        { "category": "case-studies", "id": "youtube", "title": "Design YouTube" }
+      ],
+      "sections": [
+        {
+          "title": "When to use a queue",
+          "paragraphs": [
+            "Use a queue when you want a request to stay fast, but there is follow-up work that can happen in the background."
+          ],
+          "bullets": [
+            "Image processing.",
+            "Email sending.",
+            "Analytics events.",
+            "Search indexing."
+          ]
+        }
+      ]
+    },
+    {
+      "id": "cdn",
+      "title": "CDN",
+      "tag": "Global delivery",
+      "summary": "A CDN stores content close to users so they do not always fetch it from the main origin server.",
+      "quickPoints": [
+        "CDNs reduce latency for global users.",
+        "They lower load on the origin.",
+        "They work best for static or cacheable content."
+      ],
+      "whatItMeans": "A CDN is a network of edge servers placed in many locations. Users fetch content from a nearby edge instead of a far-away origin whenever possible.",
+      "whyItMatters": "Distance matters. Users far from the origin server see slower responses, especially for large media files.",
+      "simpleExample": "Instead of shipping every package from one far city, you store popular items in local warehouses near customers.",
+      "realWorldExamples": [
+        "A video app serves thumbnails and segments from a CDN.",
+        "A learning site serves stylesheets and images from edge nodes.",
+        "A gaming platform distributes patches worldwide through edge caches."
+      ],
+      "interviewTip": "Mention what is cacheable, how updates are invalidated, and whether dynamic content still goes to origin.",
+      "tradeOffs": [
+        "CDNs reduce latency, but invalidating stale content can take time.",
+        "Edge delivery is fast, but personalized content may still need origin logic.",
+        "Global reach helps user experience, but increases configuration complexity."
+      ],
+      "commonMistakes": [
+        "Sending dynamic personalized responses to a CDN without clear cache rules.",
+        "Ignoring cache invalidation for changed content.",
+        "Assuming CDN use solves all performance problems."
+      ],
+      "relatedTopics": [
+        { "category": "components", "id": "cache", "title": "Cache" },
+        { "category": "case-studies", "id": "youtube", "title": "Design YouTube" }
+      ],
+      "sections": [
+        {
+          "title": "Best fit",
+          "paragraphs": [
+            "CDNs are best for content many users request, especially static files and media. They are less useful for every response that is unique per user."
+          ],
+          "bullets": [
+            "Images.",
+            "Videos.",
+            "Scripts and styles.",
+            "Public downloads."
+          ]
+        }
+      ]
+    },
+    {
+      "id": "database-replica",
+      "title": "Database Replica",
+      "tag": "Resilience",
+      "summary": "A database replica is an extra copy of data used for failover, reads, or both.",
+      "quickPoints": [
+        "Replicas can improve read scale.",
+        "They help availability during failures.",
+        "Replication lag can make reads stale."
+      ],
+      "whatItMeans": "A primary database accepts writes, and one or more replicas keep copies of the same data.",
+      "whyItMatters": "A single database is often a bottleneck and a risk. Replicas give more read capacity and help recovery when the primary fails.",
+      "simpleExample": "If one notebook has the official answers and others have copies, people can read from copies while one person updates the main notebook.",
+      "realWorldExamples": [
+        "An ecommerce catalog uses replicas for product page reads.",
+        "A ride platform keeps replicas for read-heavy dashboards.",
+        "A reporting system reads from replicas so it does not slow down live writes."
+      ],
+      "interviewTip": "Explain where writes go, where reads go, and whether stale reads are acceptable.",
+      "tradeOffs": [
+        "More replicas increase read capacity, but add replication cost.",
+        "Replica lag can hurt correctness for fresh reads.",
+        "Failover improves resilience, but promotion logic must be safe."
+      ],
+      "commonMistakes": [
+        "Assuming replicas instantly match the primary.",
+        "Sending important read-after-write traffic to a lagging replica.",
+        "Treating replication as a replacement for backups."
+      ],
+      "relatedTopics": [
+        { "category": "fundamentals", "id": "consistency", "title": "Consistency" },
+        { "category": "fundamentals", "id": "availability", "title": "Availability" }
+      ],
+      "sections": [
+        {
+          "title": "How to describe read scaling",
+          "paragraphs": [
+            "A common pattern is write to the primary and read from replicas for queries that do not need the newest value immediately."
+          ],
+          "bullets": [
+            "Good for product catalogs.",
+            "Risky for fresh balances.",
+            "Useful for analytics and dashboards."
+          ]
+        }
+      ]
+    },
+    {
+      "id": "api-gateway",
+      "title": "API Gateway and Proxy",
+      "tag": "Control layer",
+      "summary": "An API gateway gives one front door for clients and handles shared concerns before requests reach services.",
+      "quickPoints": [
+        "It can handle auth, rate limits, routing, and logging.",
+        "It simplifies clients by giving one entry point.",
+        "It should not become a giant bottleneck."
+      ],
+      "whatItMeans": "An API gateway or proxy sits between clients and backend services. It can route requests, enforce rules, and hide internal service details.",
+      "whyItMatters": "As systems grow, you do not want every client to know every backend service directly.",
+      "simpleExample": "A hotel front desk handles requests and directs guests to the right department instead of asking each guest to find the kitchen, housekeeping, and billing team alone.",
+      "realWorldExamples": [
+        "A mobile app sends all API requests through one gateway.",
+        "A company uses a gateway for authentication and rate limiting.",
+        "A multi-service platform hides internal service URLs from clients."
+      ],
+      "interviewTip": "Good answers mention what belongs in the gateway and what should stay in the business services.",
+      "tradeOffs": [
+        "One gateway simplifies clients, but can become a central bottleneck.",
+        "Shared policy logic is useful, but too much business logic at the edge becomes messy.",
+        "Centralized auth is convenient, but gateway failures affect many services."
+      ],
+      "commonMistakes": [
+        "Putting too much product logic into the gateway.",
+        "Ignoring rate limiting and request validation at the edge.",
+        "Treating the gateway as if it can replace service boundaries."
+      ],
+      "relatedTopics": [
+        { "category": "case-studies", "id": "rate-limiter", "title": "Design a Rate Limiter" },
+        { "category": "interview-prep", "id": "apis-and-data", "title": "APIs and Data Design" }
+      ],
+      "sections": [
+        {
+          "title": "What usually lives here",
+          "paragraphs": [
+            "A gateway is a good place for authentication, routing, request validation, basic rate limiting, and common logging."
+          ],
+          "bullets": [
+            "Auth checks.",
+            "Request routing.",
+            "Rate limiting.",
+            "Tracing and metrics."
+          ]
+        }
+      ]
+    },
+    {
+      "id": "database-design",
+      "title": "Databases in More Detail",
+      "tag": "Storage choices",
+      "summary": "Databases are not all the same. Different products need different storage shapes, access patterns, and guarantees.",
+      "quickPoints": [
+        "Choose the database based on reads, writes, and data rules.",
+        "SQL and NoSQL are tools, not team identities.",
+        "Indexes, joins, and write patterns matter as much as database labels."
+      ],
+      "whatItMeans": "This topic covers how to choose between relational, key-value, document, wide-column, or graph style storage based on the work the system does most often.",
+      "whyItMatters": "Many interview answers become weak when the database is chosen by habit instead of by access pattern.",
+      "simpleExample": "A payments table with strong relationships often fits SQL well, while a simple session store often fits key-value storage better.",
+      "realWorldExamples": [
+        "Orders and payments often use relational databases.",
+        "Session storage often uses key-value systems.",
+        "Content metadata may use document stores when the schema changes often."
+      ],
+      "interviewTip": "Say what your main reads and writes are first. Then explain why one database model fits them better.",
+      "tradeOffs": [
+        "SQL gives stronger relational structure, but horizontal scaling can be harder.",
+        "NoSQL can scale very well, but joins and strict consistency may be weaker.",
+        "Using many storage systems improves fit, but increases operational complexity."
+      ],
+      "commonMistakes": [
+        "Saying NoSQL is always better for scale.",
+        "Ignoring indexes and query patterns.",
+        "Choosing one database for every kind of data."
+      ],
+      "relatedTopics": [
+        { "category": "interview-prep", "id": "apis-and-data", "title": "APIs and Data Design" },
+        { "category": "fundamentals", "id": "partitioning", "title": "Partitioning and Sharding" }
+      ],
+      "sections": [
+        {
+          "title": "A simple way to choose",
+          "paragraphs": [
+            "Ask whether you need strong relationships, flexible schema, huge write scale, graph traversal, or very fast key lookups."
+          ],
+          "bullets": [
+            "Relational for strong structure.",
+            "Key-value for simple fast lookups.",
+            "Document for flexible records.",
+            "Search index for full-text queries."
+          ]
+        }
+      ]
+    },
+    {
+      "id": "search-systems",
+      "title": "Search Systems",
+      "tag": "Discovery",
+      "summary": "Search systems help users find the right content quickly, even when they do not know the exact text.",
+      "quickPoints": [
+        "Search is not the same as a normal database query.",
+        "Search systems often use separate indexes.",
+        "Freshness and ranking are key trade-offs."
+      ],
+      "whatItMeans": "A search system builds indexes over text and fields so users can search by words, prefixes, filters, and ranking rules.",
+      "whyItMatters": "Many products need search, but databases built for transactions are usually not enough for good text search.",
+      "simpleExample": "If users search for 'red shoes size 9', the system should understand filters and relevance, not just exact string matching.",
+      "realWorldExamples": [
+        "Product search in ecommerce.",
+        "Message search in chat tools.",
+        "Video and article search in media apps."
+      ],
+      "interviewTip": "Explain the write path too. Search indexes often update asynchronously after the main database changes.",
+      "tradeOffs": [
+        "Async indexing keeps writes fast, but search results may lag.",
+        "Rich ranking improves results, but adds complexity.",
+        "Full-text indexes are powerful, but need extra infrastructure."
+      ],
+      "commonMistakes": [
+        "Treating search like a simple SQL LIKE query at large scale.",
+        "Ignoring indexing lag.",
+        "Forgetting filters, sorting, and typo tolerance."
+      ],
+      "relatedTopics": [
+        { "category": "components", "id": "queue", "title": "Queue" },
+        { "category": "case-studies", "id": "instagram", "title": "Design Instagram" }
+      ],
+      "sections": [
+        {
+          "title": "Common architecture",
+          "paragraphs": [
+            "A normal pattern is main database for source of truth and a separate search index for fast querying."
+          ],
+          "bullets": [
+            "Write to source of truth.",
+            "Send update event.",
+            "Indexer updates search store.",
+            "Users search the index."
+          ]
+        }
+      ]
+    },
+    {
+      "id": "object-storage",
+      "title": "Object Storage",
+      "tag": "Large files",
+      "summary": "Object storage is built for large blobs such as images, videos, backups, and file chunks.",
+      "quickPoints": [
+        "It is good for large files, not rich relational queries.",
+        "It usually scales better than storing blobs in a database.",
+        "Metadata often lives somewhere else."
+      ],
+      "whatItMeans": "Object storage keeps files as objects with IDs and metadata, usually inside buckets or namespaces.",
+      "whyItMatters": "Modern systems often store media and documents outside the main database because file workloads are very different from transactional data.",
+      "simpleExample": "A photo app stores the actual image file in object storage but keeps image owner, tags, and permissions in a metadata database.",
+      "realWorldExamples": [
+        "Video originals and segments.",
+        "User uploads and backups.",
+        "File chunks for sync platforms."
+      ],
+      "interviewTip": "Separate blob storage from metadata storage when you explain file-heavy products.",
+      "tradeOffs": [
+        "Object storage scales very well, but random small updates to one object can be awkward.",
+        "It is durable, but access latency may be higher than memory or SSD caches.",
+        "Metadata queries usually need another storage layer."
+      ],
+      "commonMistakes": [
+        "Putting large files directly into the main relational database without a reason.",
+        "Ignoring upload resume and chunking.",
+        "Forgetting access control and signed URLs."
+      ],
+      "relatedTopics": [
+        { "category": "case-studies", "id": "dropbox", "title": "Design Dropbox" },
+        { "category": "case-studies", "id": "youtube", "title": "Design YouTube" }
+      ],
+      "sections": [
+        {
+          "title": "Typical split",
+          "paragraphs": [
+            "A practical design stores the blob in object storage and stores object metadata, owner, and sharing rules in another service."
+          ],
+          "bullets": [
+            "Blob in object store.",
+            "Metadata in structured store.",
+            "CDN for fast delivery when public or cacheable."
+          ]
+        }
+      ]
+    },
+    {
+      "id": "message-broker",
+      "title": "Message Broker",
+      "tag": "Delivery backbone",
+      "summary": "A message broker is the system that stores, routes, and delivers messages between services.",
+      "quickPoints": [
+        "It is more than just a queue.",
+        "It helps services communicate safely and asynchronously.",
+        "Ordering, durability, and retries matter."
+      ],
+      "whatItMeans": "A message broker accepts messages from producers and makes them available to consumers using defined delivery rules.",
+      "whyItMatters": "As systems grow, direct service-to-service calls can become slow, fragile, and tightly coupled.",
+      "simpleExample": "Instead of every team member calling each other directly for updates, they leave messages in a managed system that delivers them reliably.",
+      "realWorldExamples": [
+        "Order events sent to billing and shipping.",
+        "Video processing jobs sent to workers.",
+        "Analytics pipelines receiving event streams."
+      ],
+      "interviewTip": "Mention retention, delivery guarantees, retries, and how consumers recover after failure.",
+      "tradeOffs": [
+        "Brokers improve decoupling, but add operational complexity.",
+        "Durable storage is safer, but slower than in-memory only delivery.",
+        "Strict ordering is helpful, but often limits scale."
+      ],
+      "commonMistakes": [
+        "Using a broker without describing the delivery model.",
+        "Ignoring poison messages and dead-letter handling.",
+        "Assuming exactly-once delivery is easy."
+      ],
+      "relatedTopics": [
+        { "category": "components", "id": "queue", "title": "Queue" },
+        { "category": "components", "id": "pub-sub", "title": "Pub/Sub" }
+      ],
+      "sections": [
+        {
+          "title": "What to cover in interviews",
+          "paragraphs": [
+            "Explain what produces messages, what consumes them, how long they stay, and what happens when consumers fall behind."
+          ],
+          "bullets": [
+            "Producer.",
+            "Broker.",
+            "Consumer.",
+            "Retry and dead-letter path."
+          ]
+        }
+      ]
+    },
+    {
+      "id": "pub-sub",
+      "title": "Pub/Sub",
+      "tag": "Event fan-out",
+      "summary": "Pub/Sub lets one event reach many listeners without the sender knowing them all.",
+      "quickPoints": [
+        "Publishers send events to a topic.",
+        "Subscribers receive the events they care about.",
+        "It is useful for fan-out and loose coupling."
+      ],
+      "whatItMeans": "In publish-subscribe systems, producers publish events to a named topic and one or more subscribers receive copies.",
+      "whyItMatters": "Many systems need one update to trigger several actions in different services.",
+      "simpleExample": "When an order is placed, billing, inventory, notifications, and analytics may all need the event.",
+      "realWorldExamples": [
+        "User signup triggers email, analytics, and profile setup.",
+        "New post events trigger feed updates and notifications.",
+        "Price update events trigger search index and cache refresh."
+      ],
+      "interviewTip": "Differentiate pub/sub from a single-consumer queue. In pub/sub, many subscribers can react to the same event.",
+      "tradeOffs": [
+        "Pub/Sub improves fan-out, but makes tracing event paths harder.",
+        "Many subscribers add flexibility, but also create debugging complexity.",
+        "Loose coupling is good, but schema versioning becomes important."
+      ],
+      "commonMistakes": [
+        "Calling every async system pub/sub when it is really point-to-point queueing.",
+        "Ignoring duplicate or late events.",
+        "Not planning for event schema changes."
+      ],
+      "relatedTopics": [
+        { "category": "components", "id": "message-broker", "title": "Message Broker" },
+        { "category": "case-studies", "id": "notification-system", "title": "Design a Notification System" }
+      ],
+      "sections": [
+        {
+          "title": "Best use cases",
+          "paragraphs": [
+            "Pub/Sub is strong when one event should trigger many downstream actions without tightly coupling the publisher to each service."
+          ],
+          "bullets": [
+            "Notifications.",
+            "Analytics.",
+            "Cache invalidation.",
+            "Search index updates."
+          ]
+        }
+      ]
+    },
+    {
+      "id": "websocket",
+      "title": "WebSocket",
+      "tag": "Realtime",
+      "summary": "WebSocket keeps a long-lived connection open so servers and clients can push updates quickly.",
+      "quickPoints": [
+        "Useful for real-time experiences.",
+        "Avoids repeated polling for every update.",
+        "Connection scale and state management become important."
+      ],
+      "whatItMeans": "A WebSocket connection stays open after it starts, so the server can push data to the client without waiting for a new request each time.",
+      "whyItMatters": "Realtime apps like chat, trading, presence, or live dashboards need low-latency updates.",
+      "simpleExample": "A chat app using WebSocket can deliver new messages instantly without the phone asking every few seconds.",
+      "realWorldExamples": [
+        "Chat and group messaging.",
+        "Live sports scoreboards.",
+        "Realtime order status or ride tracking."
+      ],
+      "interviewTip": "Explain how you handle many open connections, reconnects, and which data still needs durable storage elsewhere.",
+      "tradeOffs": [
+        "Realtime updates feel fast, but long-lived connections use server resources.",
+        "WebSocket reduces polling waste, but load balancing sticky behavior may be needed.",
+        "It is good for delivery, not for long-term storage."
+      ],
+      "commonMistakes": [
+        "Using WebSocket as if it replaces the database.",
+        "Ignoring reconnect and missed-message recovery.",
+        "Assuming one server can handle unlimited open connections."
+      ],
+      "relatedTopics": [
+        { "category": "case-studies", "id": "chat-system", "title": "Design a Chat System" },
+        { "category": "case-studies", "id": "zoom", "title": "Design Zoom" }
+      ],
+      "sections": [
+        {
+          "title": "What else you still need",
+          "paragraphs": [
+            "Realtime delivery usually still needs storage, queues, presence tracking, and retry logic around it."
+          ],
+          "bullets": [
+            "Connection gateway.",
+            "Message or event path.",
+            "Storage for history.",
+            "Reconnect recovery."
+          ]
+        }
+      ]
+    },
+    {
+      "id": "rate-limiting-component",
+      "title": "Rate Limiting",
+      "tag": "Guardrail",
+      "summary": "Rate limiting protects systems by controlling how much traffic a user, client, or service can send.",
+      "quickPoints": [
+        "It protects reliability and fairness.",
+        "Checks must be fast.",
+        "It often lives at the edge or gateway."
+      ],
+      "whatItMeans": "Rate limiting tracks request counts in a time window and blocks or slows requests that go over a defined limit.",
+      "whyItMatters": "Without rate limiting, one noisy user, attacker, or buggy client can harm everyone else.",
+      "simpleExample": "A login page may allow only a small number of attempts per minute to reduce abuse.",
+      "realWorldExamples": [
+        "Public APIs limiting free-tier usage.",
+        "Message sending limits to reduce spam.",
+        "Checkout or payment APIs protecting against overload."
+      ],
+      "interviewTip": "Say who is limited, where the limiter runs, and whether burst traffic should be allowed.",
+      "tradeOffs": [
+        "Strict limits improve protection, but may hurt legitimate users during spikes.",
+        "Distributed counters scale better, but increase coordination complexity.",
+        "More precise algorithms are fairer, but usually cost more."
+      ],
+      "commonMistakes": [
+        "Not defining the identity being limited.",
+        "Using slow persistent storage for every check.",
+        "Applying the same limits to every endpoint."
+      ],
+      "relatedTopics": [
+        { "category": "case-studies", "id": "rate-limiter", "title": "Design a Rate Limiter" },
+        { "category": "components", "id": "api-gateway", "title": "API Gateway and Proxy" }
+      ],
+      "sections": [
+        {
+          "title": "What to decide first",
+          "paragraphs": [
+            "You need to decide the identity key, the time window, the allowed burst behavior, and the storage for counters."
+          ],
+          "bullets": [
+            "User ID or API key.",
+            "Window or token logic.",
+            "Fast counter store.",
+            "Clear client response on reject."
+          ]
+        }
+      ]
+    },
+    {
+      "id": "auth-session-handling",
+      "title": "Auth and Session Handling",
+      "tag": "Security",
+      "summary": "Authentication proves who the user is. Session handling keeps track of that user across requests.",
+      "quickPoints": [
+        "Auth and session logic belong in most real products.",
+        "You need a safe way to identify users again after login.",
+        "State can be stored in signed tokens or server-side sessions."
+      ],
+      "whatItMeans": "Authentication checks identity, while session handling remembers that identity after login so users do not need to log in on every request.",
+      "whyItMatters": "Many interview systems have user accounts, permissions, and multi-device behavior. Weak auth design can break the whole product.",
+      "simpleExample": "After logging in to an online store, you stay signed in while browsing products and checking out.",
+      "realWorldExamples": [
+        "Web apps using cookies and server sessions.",
+        "Mobile apps using access tokens and refresh tokens.",
+        "Admin panels with stronger session controls and expiration."
+      ],
+      "interviewTip": "Explain what kind of client you have and how sessions are refreshed, expired, revoked, and protected.",
+      "tradeOffs": [
+        "Server-side sessions are easy to revoke, but require shared session storage.",
+        "Tokens scale well, but revocation and refresh rules need careful design.",
+        "Long sessions improve convenience, but increase security risk."
+      ],
+      "commonMistakes": [
+        "Mixing authentication and authorization as if they are the same thing.",
+        "Ignoring session expiration and logout behavior.",
+        "Forgetting CSRF, token leakage, or refresh token misuse."
+      ],
+      "relatedTopics": [
+        { "category": "components", "id": "api-gateway", "title": "API Gateway and Proxy" },
+        { "category": "case-studies", "id": "payment-system", "title": "Design a Payment System" }
+      ],
+      "sections": [
+        {
+          "title": "Simple interview framing",
+          "paragraphs": [
+            "A practical answer says how users log in, what identity token or session is used after that, where permissions are checked, and how sessions are refreshed or revoked."
+          ],
+          "bullets": [
+            "Login flow.",
+            "Session or token issue.",
+            "Permission checks.",
+            "Expiration and logout."
+          ]
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,395 @@
+{
+  "category": "interview-prep",
+  "label": "Interview Prep",
+  "heroEyebrow": "Interview Prep",
+  "heroTitle": "Practice a simple repeatable system design approach instead of guessing under pressure.",
+  "heroDescription": "These topics help you answer clearly in interviews: understand the problem, estimate scale, propose a clean design, and explain trade-offs in simple language.",
+  "cardIntro": "Open any topic to see what to say, what to ask, and how to avoid common interview mistakes.",
+  "items": [
+    {
+      "id": "clarify-requirements",
+      "title": "Clarify Requirements",
+      "tag": "Start here",
+      "summary": "Before drawing boxes, make sure you understand what the product must do and what quality targets matter most.",
+      "quickPoints": [
+        "Ask what the product should do first.",
+        "Then ask about scale, speed, reliability, and data rules.",
+        "Good clarification saves time and avoids wrong designs."
+      ],
+      "whatItMeans": "Clarifying requirements means asking smart questions before designing. You want to understand features, constraints, and priorities.",
+      "whyItMatters": "A good design for one product can be a bad design for another. Requirements change everything.",
+      "simpleExample": "Designing chat for two people is different from designing chat for millions of group conversations with media and search.",
+      "realWorldExamples": [
+        "A URL shortener may need custom aliases and analytics, or it may only need simple redirects.",
+        "A video platform may need on-demand video only, or also live streaming and comments.",
+        "A file storage service may need version history, sharing, and offline sync."
+      ],
+      "interviewTip": "Ask just enough questions to shape the design. Do not spend the whole interview on edge cases too early.",
+      "tradeOffs": [
+        "Asking too little leads to wrong assumptions.",
+        "Asking too much wastes interview time.",
+        "You should narrow scope but still show awareness of bigger concerns."
+      ],
+      "commonMistakes": [
+        "Jumping to technology names before understanding the product.",
+        "Missing non-functional needs like latency or reliability.",
+        "Not stating assumptions clearly when the interviewer does not specify details."
+      ],
+      "designChecklist": [
+        "Main user actions",
+        "Scale and peak traffic",
+        "Freshness and consistency needs",
+        "Reliability and abuse risks"
+      ],
+      "whatInterviewerExpects": [
+        "A short focused question set, not endless questions.",
+        "Good separation between functional and non-functional needs.",
+        "Clear assumptions when the problem statement is incomplete."
+      ],
+      "followUpQuestions": [
+        "What would you ask first in a marketplace design interview?",
+        "How do you narrow scope when the product has many features?",
+        "Which requirement changes the architecture the most?"
+      ],
+      "sampleAnswer": {
+        "intro": "A simple way to begin is to say you want to confirm the core use case before drawing the system.",
+        "bullets": [
+          "First I would clarify the main user actions and the most important feature.",
+          "Then I would ask about scale, latency expectations, and how much stale data is acceptable.",
+          "After that I would narrow the scope so I can design one strong version instead of ten weak versions."
+        ],
+        "closing": "This gives you a clear target before you choose databases, queues, or caches."
+      },
+      "relatedTopics": [
+        { "category": "interview-prep", "id": "estimate-scale", "title": "Estimate Scale" },
+        { "category": "case-studies", "id": "url-shortener", "title": "Design a URL Shortener" }
+      ],
+      "sections": [
+        {
+          "title": "Questions worth asking",
+          "paragraphs": [
+            "Good questions usually fall into four groups: features, users, traffic, and quality expectations."
+          ],
+          "bullets": [
+            "What are the main user actions?",
+            "How many users and requests do we expect?",
+            "How fresh must the data be?",
+            "What failures are acceptable or unacceptable?"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "estimate-scale",
+      "title": "Estimate Scale",
+      "tag": "Numbers",
+      "summary": "Quick estimates help you choose the right architecture instead of guessing blindly.",
+      "quickPoints": [
+        "Estimate users, requests per second, data size, and storage growth.",
+        "Round numbers are fine if your reasoning is clear.",
+        "The goal is direction, not perfect math."
+      ],
+      "whatItMeans": "Estimate scale means doing rough calculations for traffic, bandwidth, storage, and growth.",
+      "whyItMatters": "You cannot decide whether to shard, cache, or queue work without a rough idea of system size.",
+      "simpleExample": "If 1 million users upload 2 photos per day and each photo is 2 MB, the daily storage growth is about 4 TB before compression or deduplication.",
+      "realWorldExamples": [
+        "A live chat system needs estimates for active connections, not just total users.",
+        "A video site needs bandwidth and storage estimates, not only request counts.",
+        "A feed system needs write volume and fan-out size estimates."
+      ],
+      "interviewTip": "Say your assumptions out loud. Interviewers care more about your reasoning than exact numbers.",
+      "tradeOffs": [
+        "Too much math can consume the interview.",
+        "Too little math leads to vague architecture choices.",
+        "Simple estimates are enough if they help justify design decisions."
+      ],
+      "commonMistakes": [
+        "Using numbers without explaining where they came from.",
+        "Estimating total users but ignoring peak traffic.",
+        "Forgetting storage growth over time."
+      ],
+      "whatInterviewerExpects": [
+        "Comfort with rough math.",
+        "Reasonable assumptions stated out loud.",
+        "Numbers that guide design choices instead of existing in isolation."
+      ],
+      "followUpQuestions": [
+        "How do peak and average traffic change the design?",
+        "What if the average object size doubles?",
+        "Which number would make you add sharding?"
+      ],
+      "estimationWalkthrough": {
+        "title": "Example rough estimation",
+        "assumptions": [
+          "10 million daily active users",
+          "2 percent active at peak",
+          "Each active user sends 5 requests per minute",
+          "Average response payload is 50 KB"
+        ],
+        "calculations": [
+          "Peak active users: about 200,000",
+          "Peak request rate: about 16,000 to 17,000 requests per second",
+          "Peak outbound bandwidth: roughly 800 MB per second before caching"
+        ],
+        "takeaway": "These numbers are not perfect. They simply tell you that caching, replicas, and bandwidth planning are now important."
+      },
+      "sampleAnswer": {
+        "intro": "You do not need perfect math. You need useful math.",
+        "bullets": [
+          "I would estimate daily users, peak active users, and requests per second first.",
+          "Then I would estimate storage growth and bandwidth because those often drive architecture choices.",
+          "Finally I would use those numbers to justify caching, queues, replicas, or sharding."
+        ],
+        "closing": "Simple estimates are enough if they clearly shape the design."
+      },
+      "relatedTopics": [
+        { "category": "fundamentals", "id": "latency-throughput", "title": "Latency and Throughput" },
+        { "category": "interview-prep", "id": "high-level-design", "title": "High-level Design" }
+      ],
+      "sections": [
+        {
+          "title": "Useful estimate buckets",
+          "paragraphs": [
+            "You usually need only a few buckets: read QPS, write QPS, object size, daily growth, and peak multiplier."
+          ],
+          "bullets": [
+            "Average traffic.",
+            "Peak traffic.",
+            "Storage per day.",
+            "Network bandwidth."
+          ]
+        }
+      ]
+    },
+    {
+      "id": "high-level-design",
+      "title": "High-level Design",
+      "tag": "Structure",
+      "summary": "After clarifying the problem, draw a simple end-to-end flow before diving into details.",
+      "quickPoints": [
+        "Start with the main user flow.",
+        "Place the major components before optimizing.",
+        "Show how data moves through the system."
+      ],
+      "whatItMeans": "High-level design is the first clean architecture sketch that shows clients, services, storage, and important supporting systems.",
+      "whyItMatters": "A clear first draft keeps the conversation organized and gives you a base for later improvements.",
+      "simpleExample": "For a file upload system, you might start with client -> API -> object storage -> metadata database -> async workers.",
+      "realWorldExamples": [
+        "A ride app may begin with app client, gateway, matching service, trip service, and location store.",
+        "A video app may begin with upload API, storage, queue, transcoding workers, and CDN.",
+        "A news feed may begin with posting service, follow graph, feed generation service, and cache."
+      ],
+      "interviewTip": "Do not try to show every edge case in the first diagram. Start simple, then refine.",
+      "tradeOffs": [
+        "Too much detail early makes the explanation messy.",
+        "Too little detail makes it hard to discuss trade-offs.",
+        "A clear baseline lets you add depth step by step."
+      ],
+      "commonMistakes": [
+        "Jumping straight into database type debates without a full flow.",
+        "Drawing too many boxes with no explanation of data movement.",
+        "Forgetting background jobs or failure handling."
+      ],
+      "stepFlow": [
+        {
+          "step": "1",
+          "title": "Draw the client and entry point",
+          "description": "Show where requests come from and what service receives them first."
+        },
+        {
+          "step": "2",
+          "title": "Add the core service logic",
+          "description": "Place the main services that make the product work."
+        },
+        {
+          "step": "3",
+          "title": "Add storage and async work",
+          "description": "Show where data is stored and which tasks move to queues or workers."
+        },
+        {
+          "step": "4",
+          "title": "Finish with scaling and reliability notes",
+          "description": "Only after the core flow is clear should you add replicas, caching, and failure handling."
+        }
+      ],
+      "whatInterviewerExpects": [
+        "A clean baseline architecture.",
+        "A clear explanation of data movement.",
+        "A layered answer that gets deeper over time."
+      ],
+      "designChecklist": [
+        "Client entry point",
+        "Core service path",
+        "Primary data stores",
+        "Async processing",
+        "Scaling helpers",
+        "Failure notes"
+      ],
+      "sampleAnswer": {
+        "intro": "A strong high-level design answer usually sounds calm and layered.",
+        "bullets": [
+          "I would start with the simplest end-to-end flow for the main user action.",
+          "Then I would add the main storage and any background processing path.",
+          "After that I would discuss where caching, replication, or partitioning may be needed."
+        ],
+        "closing": "The goal is to create a clear base that can be refined, not to draw everything at once."
+      },
+      "relatedTopics": [
+        { "category": "components", "id": "queue", "title": "Queue" },
+        { "category": "case-studies", "id": "dropbox", "title": "Design Dropbox" }
+      ],
+      "sections": [
+        {
+          "title": "A simple order to follow",
+          "paragraphs": [
+            "One easy pattern is: client, entry point, core service, main storage, async processing, caching, and monitoring."
+          ],
+          "bullets": [
+            "Draw the main path first.",
+            "Add scale helpers second.",
+            "Add failure and monitoring notes last."
+          ]
+        }
+      ]
+    },
+    {
+      "id": "apis-and-data",
+      "title": "APIs and Data Design",
+      "tag": "Modeling",
+      "summary": "A strong interview answer includes what data you store and how clients interact with it.",
+      "quickPoints": [
+        "Define the main entities and key reads and writes.",
+        "Keep APIs simple and close to product actions.",
+        "Data access patterns often guide the database choice."
+      ],
+      "whatItMeans": "This topic covers the main API endpoints, the main data objects, and how those choices affect storage and scaling.",
+      "whyItMatters": "A system is easier to design once you know what needs to be saved, updated, and queried often.",
+      "simpleExample": "In a URL shortener, one main write is create short link and one main read is resolve short code to original URL.",
+      "realWorldExamples": [
+        "A chat app stores users, conversations, messages, and delivery states.",
+        "A ride app stores drivers, rider requests, trips, and location updates.",
+        "A file sync app stores file metadata, chunk pointers, versions, and sharing rules."
+      ],
+      "interviewTip": "Explain the access pattern first, then justify SQL, NoSQL, search index, or object storage.",
+      "tradeOffs": [
+        "Rich normalized models improve correctness, but may slow some reads.",
+        "Denormalized models speed reads, but increase write complexity.",
+        "Simple APIs are easier to reason about, but may require more backend coordination."
+      ],
+      "commonMistakes": [
+        "Naming a database type without explaining access patterns.",
+        "Ignoring update frequency and query shape.",
+        "Forgetting identifiers, indexes, and versioning."
+      ],
+      "whatInterviewerExpects": [
+        "The main entities are clear.",
+        "Important read and write APIs are named simply.",
+        "Storage choice is tied to access pattern, not brand names."
+      ],
+      "followUpQuestions": [
+        "Which fields need indexes?",
+        "Which APIs are read-heavy and which are write-heavy?",
+        "Would you separate metadata and blob storage?"
+      ],
+      "sampleAnswer": {
+        "intro": "This part of the interview should sound practical, not abstract.",
+        "bullets": [
+          "I would define the main entities first, such as users, posts, messages, or trips.",
+          "Then I would define the main read and write APIs around those actions.",
+          "Finally I would choose storage based on query shape, update pattern, and consistency needs."
+        ],
+        "closing": "When APIs and data shape are clear, the rest of the architecture becomes easier to justify."
+      },
+      "relatedTopics": [
+        { "category": "components", "id": "api-gateway", "title": "API Gateway and Proxy" },
+        { "category": "case-studies", "id": "chat-system", "title": "Design a Chat System" }
+      ],
+      "sections": [
+        {
+          "title": "How to keep it simple",
+          "paragraphs": [
+            "You usually need only a few core entities and a few important APIs. Stay focused on the main user journey."
+          ],
+          "bullets": [
+            "What gets created?",
+            "What gets read most often?",
+            "What changes over time?",
+            "What must be indexed?"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "bottlenecks-and-tradeoffs",
+      "title": "Bottlenecks and Trade-offs",
+      "tag": "Finish strong",
+      "summary": "The strongest interview answers end by showing what could break first and how you would improve it.",
+      "quickPoints": [
+        "Point out the likely bottlenecks yourself.",
+        "Explain the trade-offs of your design choices.",
+        "Offer realistic next steps instead of perfect magic solutions."
+      ],
+      "whatItMeans": "This is the part where you evaluate your own design. You identify where load, delay, cost, or failure is most likely to hurt first.",
+      "whyItMatters": "Interviewers want to see engineering judgment, not only diagrams.",
+      "simpleExample": "If a chat system stores all messages in one database, you can say that write scale may become a bottleneck and sharding by conversation may be a next step.",
+      "realWorldExamples": [
+        "A video platform may hit storage and transcoding cost bottlenecks.",
+        "A ride platform may hit location ingestion and matching bottlenecks during rush hour.",
+        "A feed system may hit fan-out bottlenecks for very large accounts."
+      ],
+      "interviewTip": "Volunteer the weaknesses in your own design. That shows maturity and control.",
+      "tradeOffs": [
+        "More caching improves speed, but risks stale reads.",
+        "More replicas improve availability, but can increase lag.",
+        "More microservices improve separation, but increase operational complexity."
+      ],
+      "commonMistakes": [
+        "Presenting the design as if it has no weaknesses.",
+        "Adding every advanced tool at once instead of growing step by step.",
+        "Ignoring operational cost and observability."
+      ],
+      "designChecklist": [
+        "First bottleneck",
+        "Next improvement",
+        "New complexity introduced",
+        "Monitoring and failure signals"
+      ],
+      "whatInterviewerExpects": [
+        "Honest discussion of weaknesses.",
+        "Clear prioritization of what to fix first.",
+        "Awareness that every improvement creates a new trade-off."
+      ],
+      "followUpQuestions": [
+        "What breaks first at 10x scale?",
+        "Which optimization would you add first and why?",
+        "What new complexity comes after that optimization?"
+      ],
+      "sampleAnswer": {
+        "intro": "A strong ending sounds like a thoughtful review of your own design.",
+        "bullets": [
+          "The first likely bottleneck here is the write path because traffic concentrates on one storage layer.",
+          "My next improvement would be to add caching or partitioning depending on whether reads or writes are under more pressure.",
+          "That change would help scale, but it would also add complexity around consistency, invalidation, or operations."
+        ],
+        "closing": "This shows that you know both how to scale and how to reason about the cost of scaling."
+      },
+      "relatedTopics": [
+        { "category": "fundamentals", "id": "partitioning", "title": "Partitioning and Sharding" },
+        { "category": "components", "id": "cache", "title": "Cache" }
+      ],
+      "sections": [
+        {
+          "title": "A good ending structure",
+          "paragraphs": [
+            "One simple way to finish is: identify the first bottleneck, propose the next improvement, then mention what new complexity that improvement adds."
+          ],
+          "bullets": [
+            "What breaks first?",
+            "What would you improve next?",
+            "What new trade-off appears after that?"
+          ]
+        }
+      ]
+    }
+  ]
+}

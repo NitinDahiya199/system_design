@@ -1,0 +1,567 @@
+{
+  "category": "fundamentals",
+  "label": "Fundamentals",
+  "heroEyebrow": "Fundamentals",
+  "heroTitle": "Learn the basic ideas that appear in almost every system design interview.",
+  "heroDescription": "Start here if system design feels overwhelming. These topics explain what good systems are trying to achieve and why engineers make trade-offs.",
+  "cardIntro": "Open any concept to study it in much more depth with simple explanations and examples.",
+  "items": [
+    {
+      "id": "latency-throughput",
+      "title": "Latency and Throughput",
+      "tag": "Core idea",
+      "summary": "Latency is how long one request takes. Throughput is how much work the system finishes over time.",
+      "quickPoints": [
+        "Low latency means a single request feels fast.",
+        "High throughput means the system can handle many requests.",
+        "A system can be fast for one user but still fail under heavy traffic."
+      ],
+      "whatItMeans": "Latency is the waiting time for one request. Throughput is the number of requests, jobs, or messages handled in one second or one minute.",
+      "whyItMatters": "Interviews often ask you to make a system feel fast while also supporting growth. You need to explain whether you are solving a speed problem for one user or a scale problem for many users at once.",
+      "simpleExample": "If a food stall serves one customer in 30 seconds, that is latency. If it serves 120 customers in one hour, that is throughput.",
+      "realWorldExamples": [
+        "A search bar needs low latency because users notice even small delays.",
+        "A log processing pipeline needs high throughput because it must handle a huge number of events.",
+        "A payment service needs both: each payment should be quick, and the service should stay stable during traffic spikes."
+      ],
+      "interviewTip": "Say clearly whether the product cares more about fast single responses, large overall capacity, or both.",
+      "tradeOffs": [
+        "Batching can increase throughput, but one item may wait longer before it is processed.",
+        "Heavy caching can reduce latency, but stale data may appear.",
+        "More worker machines can increase throughput, but coordination becomes harder."
+      ],
+      "commonMistakes": [
+        "Using latency and throughput as if they mean the same thing.",
+        "Optimizing one slow endpoint without checking if the real bottleneck is total traffic.",
+        "Ignoring network delay, database delay, and queue delay when estimating latency."
+      ],
+      "relatedTopics": [
+        { "category": "components", "id": "cache", "title": "Cache" },
+        { "category": "interview-prep", "id": "estimate-scale", "title": "Estimate Scale" }
+      ],
+      "sections": [
+        {
+          "title": "How to think about it",
+          "paragraphs": [
+            "Latency answers the question, \"How long will one user wait?\" Throughput answers the question, \"How much total work can the system finish?\"",
+            "When traffic grows, a system may still look fast in tests with a few users, but real users can suffer when the total load becomes too high."
+          ],
+          "bullets": [
+            "User-facing products usually care a lot about latency.",
+            "Background systems often care a lot about throughput.",
+            "Many systems need a balance between the two."
+          ]
+        },
+        {
+          "title": "Interview example",
+          "paragraphs": [
+            "Suppose you are designing a photo upload service. Upload completion time matters to the user, so latency matters. At the same time, the backend must process many uploads in parallel, so throughput matters too."
+          ],
+          "bullets": [
+            "Use queues to smooth traffic spikes.",
+            "Use multiple workers for image processing.",
+            "Use a CDN so later reads stay fast."
+          ]
+        }
+      ]
+    },
+    {
+      "id": "availability",
+      "title": "Availability",
+      "tag": "Reliability",
+      "summary": "Availability means the system is up and usable when people need it.",
+      "quickPoints": [
+        "Highly available systems keep working even when some parts fail.",
+        "Redundancy helps, but it increases cost.",
+        "You should explain what level of downtime the product can tolerate."
+      ],
+      "whatItMeans": "Availability is the chance that a user can successfully use the system when they try. It does not mean the system is perfect, only that it remains reachable and useful.",
+      "whyItMatters": "Different products need different uptime levels. A banking app and a casual blog do not need the same failure tolerance.",
+      "simpleExample": "If one grocery store counter closes but other counters keep working, customers can still check out. That is similar to keeping extra servers ready when one fails.",
+      "realWorldExamples": [
+        "A ride-hailing app should keep booking rides during peak time even if one server crashes.",
+        "A video app may keep streaming with slightly lower quality instead of going fully down.",
+        "An internal analytics tool may accept some downtime if cost matters more than perfect uptime."
+      ],
+      "interviewTip": "Always ask how much downtime is acceptable. That changes how much replication, failover, and cross-region support you need.",
+      "tradeOffs": [
+        "More replicas improve availability, but increase cost and data synchronization work.",
+        "Cross-region deployment improves resilience, but adds complexity and consistency challenges.",
+        "Fast failover improves uptime, but may require more infrastructure kept ready all the time."
+      ],
+      "commonMistakes": [
+        "Saying a system is highly available without explaining how failures are handled.",
+        "Ignoring single points of failure like one database or one load balancer.",
+        "Forgetting that maintenance and bad deployments can also hurt availability."
+      ],
+      "relatedTopics": [
+        { "category": "components", "id": "database-replica", "title": "Database Replica" },
+        { "category": "case-studies", "id": "uber", "title": "Design Uber" }
+      ],
+      "sections": [
+        {
+          "title": "What usually improves availability",
+          "paragraphs": [
+            "You usually improve availability by adding redundancy and by isolating failures. If one machine, zone, or region fails, another should take over."
+          ],
+          "bullets": [
+            "Multiple app servers behind a load balancer.",
+            "Replica databases for failover.",
+            "Health checks and automatic traffic shifting."
+          ]
+        },
+        {
+          "title": "What to say in interviews",
+          "paragraphs": [
+            "If the interviewer asks for a globally used product, mention how traffic can be routed away from a bad region. If the product is smaller, explain that a single region with replicas may be enough at first."
+          ],
+          "bullets": [
+            "Start simple.",
+            "Show how reliability grows with scale.",
+            "Link the design to business importance."
+          ]
+        }
+      ]
+    },
+    {
+      "id": "consistency",
+      "title": "Consistency",
+      "tag": "Correctness",
+      "summary": "Consistency is about whether users see the latest correct data when they read from the system.",
+      "quickPoints": [
+        "Strong consistency gives the newest data right away.",
+        "Eventual consistency allows a short delay before all copies match.",
+        "The right choice depends on the product, not on buzzwords."
+      ],
+      "whatItMeans": "If one user changes data and another user reads it, consistency decides how fresh and correct that read will be.",
+      "whyItMatters": "Some systems must show the latest value immediately. Others can tolerate a short delay if that makes scaling easier.",
+      "simpleExample": "If you change your profile picture and one device still shows the old one for a few seconds, that is eventual consistency.",
+      "realWorldExamples": [
+        "Bank transfers usually need stronger consistency so balances stay correct.",
+        "Social feed likes can often tolerate small delays.",
+        "Shared document editing may need special conflict handling instead of simple strong or eventual consistency."
+      ],
+      "interviewTip": "Tie the consistency model to user harm. Ask what goes wrong if a user sees old data for a few seconds.",
+      "tradeOffs": [
+        "Strong consistency improves correctness, but may add latency.",
+        "Eventual consistency scales well, but users may briefly see stale data.",
+        "Conflict resolution logic helps disconnected systems, but makes product behavior harder to explain."
+      ],
+      "commonMistakes": [
+        "Choosing strong consistency everywhere even when the product does not need it.",
+        "Saying eventual consistency is always okay because it scales better.",
+        "Ignoring what users see during replication lag."
+      ],
+      "relatedTopics": [
+        { "category": "fundamentals", "id": "availability", "title": "Availability" },
+        { "category": "case-studies", "id": "dropbox", "title": "Design Dropbox" }
+      ],
+      "sections": [
+        {
+          "title": "Strong vs eventual",
+          "paragraphs": [
+            "Strong consistency is useful when wrong data would break trust or business logic. Eventual consistency is useful when small temporary differences are acceptable."
+          ],
+          "bullets": [
+            "Money: usually strong.",
+            "Likes and views: often eventual.",
+            "Inventory: depends on how strict overselling rules are."
+          ]
+        },
+        {
+          "title": "Simple way to explain it",
+          "paragraphs": [
+            "Do not overcomplicate this in interviews. Just explain how long users can safely wait before all parts of the system show the same answer."
+          ],
+          "bullets": [
+            "Ask about freshness needs.",
+            "Mention replica lag.",
+            "Talk about user impact."
+          ]
+        }
+      ]
+    },
+    {
+      "id": "partitioning",
+      "title": "Partitioning and Sharding",
+      "tag": "Scaling",
+      "summary": "Partitioning splits data across many machines so one machine does not hold everything.",
+      "quickPoints": [
+        "Sharding helps when one database is too large or too busy.",
+        "Good shard keys spread traffic evenly.",
+        "Poor shard keys create hot spots."
+      ],
+      "whatItMeans": "Instead of storing all data on one machine, you divide it into pieces and place those pieces on different machines.",
+      "whyItMatters": "Large systems outgrow one database in storage, read traffic, write traffic, or all three.",
+      "simpleExample": "A library may store books in different rooms based on category. That makes it easier to scale, but if one room gets all the popular books, that room becomes crowded.",
+      "realWorldExamples": [
+        "A messaging app may shard by conversation ID so different chats spread across servers.",
+        "A ride service may shard by region because most trips stay within one city.",
+        "A social app may shard by user ID, but celebrity users can still create hot spots."
+      ],
+      "interviewTip": "Do not just say 'use sharding'. Explain the key, why it spreads load, and what happens when traffic is uneven.",
+      "tradeOffs": [
+        "Sharding improves scale, but cross-shard queries become harder.",
+        "Resharding helps future growth, but moving live data is risky.",
+        "Range-based sharding can support ordered queries, but hot ranges are possible."
+      ],
+      "commonMistakes": [
+        "Choosing a shard key without thinking about real traffic patterns.",
+        "Ignoring rebalancing when a shard grows too hot.",
+        "Forgetting that joins and transactions are harder across shards."
+      ],
+      "relatedTopics": [
+        { "category": "components", "id": "database-replica", "title": "Database Replica" },
+        { "category": "case-studies", "id": "news-feed", "title": "Design a News Feed" }
+      ],
+      "sections": [
+        {
+          "title": "Common sharding approaches",
+          "paragraphs": [
+            "Hash-based sharding spreads data fairly well. Range-based sharding is easier for ordered data. Geo-based sharding is helpful when users mostly stay in one region."
+          ],
+          "bullets": [
+            "Hash: good distribution.",
+            "Range: good for ordered scans.",
+            "Geo: good for local traffic and compliance."
+          ]
+        },
+        {
+          "title": "How to explain hot spots",
+          "paragraphs": [
+            "A hot spot happens when one shard gets much more traffic than others. This often comes from poor key choice or from a few very popular users."
+          ],
+          "bullets": [
+            "Use better keys.",
+            "Add caching.",
+            "Split hot entities further if needed."
+          ]
+        }
+      ]
+    },
+    {
+      "id": "replication",
+      "title": "Replication",
+      "tag": "Durability",
+      "summary": "Replication means keeping the same data in more than one place so the system can survive failures and serve more reads.",
+      "quickPoints": [
+        "Replication creates extra copies of data.",
+        "It helps availability and read scale.",
+        "It can also create lag and conflict problems."
+      ],
+      "whatItMeans": "Instead of storing one copy of data on one machine, the system keeps multiple copies on different machines or in different zones.",
+      "whyItMatters": "If one machine fails and the only copy of data is lost, the service may stop working. Replication lowers that risk.",
+      "simpleExample": "If you keep one notebook at home and another in your bag, you can still work even if one is missing. That is the basic idea behind replication.",
+      "realWorldExamples": [
+        "Ecommerce product catalogs use replicas for heavy reads.",
+        "Payment systems keep multiple copies so failures do not lose transactions.",
+        "Global apps replicate data to be closer to users in different regions."
+      ],
+      "interviewTip": "Explain whether replication is mainly for failover, read scaling, geographic reach, or all three.",
+      "tradeOffs": [
+        "More replicas improve resilience, but increase synchronization work.",
+        "Async replication is faster, but replicas may be stale.",
+        "Sync replication improves correctness, but can add write latency."
+      ],
+      "commonMistakes": [
+        "Using the word replication without saying how fresh replicas are.",
+        "Assuming every replica is safe for read-after-write traffic.",
+        "Treating replication like a backup strategy."
+      ],
+      "whatInterviewerExpects": [
+        "A clear explanation of why extra copies exist.",
+        "Awareness that replicas can lag behind.",
+        "A good reason for choosing sync or async replication."
+      ],
+      "followUpQuestions": [
+        "What happens if the primary node fails?",
+        "Can users read from replicas right after a write?",
+        "How would you replicate across regions?"
+      ],
+      "relatedTopics": [
+        { "category": "components", "id": "database-replica", "title": "Database Replica" },
+        { "category": "fundamentals", "id": "consistency", "title": "Consistency" }
+      ],
+      "sections": [
+        {
+          "title": "Primary and replica",
+          "paragraphs": [
+            "A common pattern is one primary node for writes and one or more replicas for reads and failover."
+          ],
+          "bullets": [
+            "Primary handles writes.",
+            "Replicas copy changes.",
+            "Failover promotes a replica when needed."
+          ]
+        }
+      ]
+    },
+    {
+      "id": "cap-theorem",
+      "title": "CAP Theorem",
+      "tag": "Trade-offs",
+      "summary": "CAP is a simple way to talk about what a distributed system does during network trouble.",
+      "quickPoints": [
+        "CAP matters only when there is a network partition.",
+        "You usually choose between stronger consistency and staying fully available.",
+        "The best choice depends on product needs."
+      ],
+      "whatItMeans": "If network links break between parts of a distributed system, the system cannot fully keep both perfect consistency and full availability at the same time.",
+      "whyItMatters": "Interviewers use CAP to see whether you understand trade-offs in real distributed systems, not to hear textbook words only.",
+      "simpleExample": "Imagine two store branches cannot talk to each other for a while. They can either pause risky actions until they sync again, or keep serving customers even though numbers may not match for a short time.",
+      "realWorldExamples": [
+        "A bank may pause or limit some operations when correctness matters most.",
+        "A social feed may keep working and accept small delays in freshness.",
+        "A shopping cart may stay available while stock counts catch up later."
+      ],
+      "interviewTip": "Explain CAP with user impact. Say what users see during the partition and why that choice is acceptable.",
+      "tradeOffs": [
+        "Choosing consistency may block some operations during failures.",
+        "Choosing availability may show old or conflicting data for a while.",
+        "Real systems often mix choices for different features."
+      ],
+      "commonMistakes": [
+        "Explaining CAP as if all three parts are always competing all the time.",
+        "Using CAP without tying it to an actual product decision.",
+        "Thinking one system must use the same choice for every feature."
+      ],
+      "whatInterviewerExpects": [
+        "A simple explanation of partitions.",
+        "A product-based reason for the consistency or availability choice.",
+        "Examples of which data can be stale and which cannot."
+      ],
+      "followUpQuestions": [
+        "Which parts of this product can tolerate stale data?",
+        "Would you choose the same CAP trade-off for payments and likes?",
+        "How would you explain replica lag to users?"
+      ],
+      "relatedTopics": [
+        { "category": "fundamentals", "id": "availability", "title": "Availability" },
+        { "category": "fundamentals", "id": "consistency", "title": "Consistency" }
+      ],
+      "sections": [
+        {
+          "title": "Simple way to remember it",
+          "paragraphs": [
+            "During a network partition, you choose whether to wait for agreement or keep serving requests with the risk of temporary differences."
+          ],
+          "bullets": [
+            "Wait for agreement: stronger correctness.",
+            "Keep serving: stronger availability.",
+            "Pick based on user harm."
+          ]
+        }
+      ]
+    },
+    {
+      "id": "vertical-vs-horizontal-scaling",
+      "title": "Vertical vs Horizontal Scaling",
+      "tag": "Growth",
+      "summary": "Vertical scaling makes one machine stronger. Horizontal scaling adds more machines.",
+      "quickPoints": [
+        "Vertical scaling is simple at first.",
+        "Horizontal scaling helps growth and resilience.",
+        "Horizontal scaling also adds coordination work."
+      ],
+      "whatItMeans": "Vertical scaling means adding more CPU, memory, or storage to one machine. Horizontal scaling means adding more machines and spreading work across them.",
+      "whyItMatters": "This is one of the first scaling decisions you will discuss in interviews.",
+      "simpleExample": "If one cashier is too slow, you can either give that cashier a faster machine or open more checkout counters.",
+      "realWorldExamples": [
+        "A small internal tool may scale vertically for a long time.",
+        "A social app with large traffic often needs horizontal app servers.",
+        "A growing search service may need both stronger nodes and more nodes."
+      ],
+      "interviewTip": "Start simple: say what can stay on one stronger machine early on, then explain when adding more machines becomes necessary.",
+      "tradeOffs": [
+        "Vertical scaling is easier to operate, but has hard limits.",
+        "Horizontal scaling improves resilience, but requires load balancing and distributed state handling.",
+        "Not every database or workload scales horizontally in the same easy way."
+      ],
+      "commonMistakes": [
+        "Assuming horizontal scaling is always the right first step.",
+        "Ignoring the cost and complexity of spreading state.",
+        "Forgetting that some systems can scale one layer horizontally but not another."
+      ],
+      "relatedTopics": [
+        { "category": "components", "id": "load-balancer", "title": "Load Balancer" },
+        { "category": "fundamentals", "id": "partitioning", "title": "Partitioning and Sharding" }
+      ],
+      "sections": [
+        {
+          "title": "Good interview framing",
+          "paragraphs": [
+            "A strong answer often says: start by scaling vertically while the product is small, then move to horizontal scaling as traffic and reliability needs grow."
+          ],
+          "bullets": [
+            "Good for early speed of development.",
+            "Move to many machines when limits appear.",
+            "Explain what operational work grows after that."
+          ]
+        }
+      ]
+    },
+    {
+      "id": "load-shedding",
+      "title": "Load Shedding",
+      "tag": "Protection",
+      "summary": "Load shedding means dropping some work on purpose so the whole system does not collapse.",
+      "quickPoints": [
+        "It protects the system during spikes.",
+        "Not every request is equally important.",
+        "A smaller graceful failure is better than a total outage."
+      ],
+      "whatItMeans": "When traffic is too high, the system rejects or delays less important work so the most important paths stay alive.",
+      "whyItMatters": "Many systems do not fail because of one bug. They fail because overload spreads everywhere. Load shedding limits the damage.",
+      "simpleExample": "During a rush, a restaurant may stop taking custom special orders so it can still serve normal meals on time.",
+      "realWorldExamples": [
+        "A search site may skip expensive suggestions during extreme load.",
+        "A video service may reduce recommendation updates but keep playback alive.",
+        "A payment service may block non-critical analytics while still processing payments."
+      ],
+      "interviewTip": "Say which requests are most important and which can be delayed, simplified, or rejected.",
+      "tradeOffs": [
+        "Dropping work protects the core service, but some features temporarily degrade.",
+        "Aggressive shedding improves stability, but may frustrate some users.",
+        "Soft degradation is better for user experience, but harder to design."
+      ],
+      "commonMistakes": [
+        "Trying to save every request equally during overload.",
+        "Not defining priority classes before failure happens.",
+        "Ignoring user messaging when a request is rejected."
+      ],
+      "whatInterviewerExpects": [
+        "A clear priority order for traffic.",
+        "An explanation of which features can degrade first.",
+        "Awareness that overload protection is part of reliability."
+      ],
+      "relatedTopics": [
+        { "category": "interview-prep", "id": "bottlenecks-and-tradeoffs", "title": "Bottlenecks and Trade-offs" },
+        { "category": "case-studies", "id": "notification-system", "title": "Design a Notification System" }
+      ],
+      "sections": [
+        {
+          "title": "Common shedding choices",
+          "paragraphs": [
+            "Systems often shed optional work first: analytics, recommendations, background sync, or low-priority API calls."
+          ],
+          "bullets": [
+            "Protect writes that must succeed.",
+            "Protect payments and auth.",
+            "Degrade nice-to-have features first."
+          ]
+        }
+      ]
+    },
+    {
+      "id": "fault-tolerance",
+      "title": "Fault Tolerance",
+      "tag": "Reliability",
+      "summary": "Fault tolerance is the ability to keep working even when some parts fail.",
+      "quickPoints": [
+        "Failures are normal in distributed systems.",
+        "The goal is not zero failure. The goal is surviving failure.",
+        "Isolation and fallback behavior matter."
+      ],
+      "whatItMeans": "A fault-tolerant system expects machines, networks, or services to fail and is designed so those failures do not take everything down.",
+      "whyItMatters": "Interviewers want to know whether you design only for the happy path or also for real production failures.",
+      "simpleExample": "If one bus route is blocked but people can still reach work using another route, the transport network is more fault tolerant.",
+      "realWorldExamples": [
+        "A service uses retries with backoff for short network failures.",
+        "A checkout flow has fallback payment providers.",
+        "A video app switches to lower quality instead of failing playback."
+      ],
+      "interviewTip": "Name the likely failure points and say what the system does next instead of only saying 'we add retries.'",
+      "tradeOffs": [
+        "Retries improve resilience, but can increase load during incidents.",
+        "Fallback systems improve uptime, but add operational cost.",
+        "Isolation improves stability, but increases architecture complexity."
+      ],
+      "commonMistakes": [
+        "Relying on retries for every failure type.",
+        "Ignoring timeouts and circuit breakers.",
+        "Not separating critical from non-critical services."
+      ],
+      "followUpQuestions": [
+        "What happens if a dependency becomes slow instead of fully down?",
+        "Which failures should trigger retries and which should not?",
+        "How would you isolate one noisy service from the rest?"
+      ],
+      "relatedTopics": [
+        { "category": "fundamentals", "id": "availability", "title": "Availability" },
+        { "category": "components", "id": "queue", "title": "Queue" }
+      ],
+      "sections": [
+        {
+          "title": "Useful fault-tolerance tools",
+          "paragraphs": [
+            "Common tools include timeouts, retries, circuit breakers, queues, replicas, and fallback modes."
+          ],
+          "bullets": [
+            "Timeout slow calls.",
+            "Retry only when safe.",
+            "Use fallbacks for non-critical features.",
+            "Isolate failures with queues and service boundaries."
+          ]
+        }
+      ]
+    },
+    {
+      "id": "idempotency",
+      "title": "Idempotency",
+      "tag": "Safety",
+      "summary": "Idempotency means the same request can be repeated without causing the same action to happen many times.",
+      "quickPoints": [
+        "It protects systems from duplicate requests.",
+        "It is very important for payments, retries, and webhooks.",
+        "The same request should lead to the same safe result."
+      ],
+      "whatItMeans": "If a client sends the same request again because of timeout or retry, the system should not accidentally create duplicate side effects.",
+      "whyItMatters": "Networks fail, users double-click, and clients retry. Without idempotency, one real action can become two or three actions by mistake.",
+      "simpleExample": "If you press the elevator button three times, the elevator should still come once, not three times.",
+      "realWorldExamples": [
+        "A payment API uses idempotency keys so one charge is not created twice.",
+        "Webhook handlers ignore duplicate event deliveries.",
+        "Order creation APIs prevent the same cart from becoming multiple orders."
+      ],
+      "interviewTip": "When you mention retries, also mention how you avoid duplicate side effects.",
+      "tradeOffs": [
+        "Idempotency improves safety, but needs request tracking or unique keys.",
+        "Stored keys take space and expiration policy work.",
+        "Not every operation is naturally idempotent, so the design may need extra logic."
+      ],
+      "commonMistakes": [
+        "Adding retries without duplicate protection.",
+        "Assuming unique database IDs alone solve the whole problem.",
+        "Ignoring expiration and reuse rules for idempotency keys."
+      ],
+      "whatInterviewerExpects": [
+        "Awareness that retries can create duplicates.",
+        "A concrete plan such as idempotency keys or request deduplication.",
+        "Examples of where idempotency matters most."
+      ],
+      "followUpQuestions": [
+        "How long would you store idempotency keys?",
+        "Would you use the same design for payments and notifications?",
+        "What if the first request succeeded but the response was lost?"
+      ],
+      "relatedTopics": [
+        { "category": "fundamentals", "id": "fault-tolerance", "title": "Fault Tolerance" },
+        { "category": "case-studies", "id": "payment-system", "title": "Design a Payment System" }
+      ],
+      "sections": [
+        {
+          "title": "Where it shows up",
+          "paragraphs": [
+            "Idempotency is especially important in systems that use retries, message delivery, and client-side resubmission."
+          ],
+          "bullets": [
+            "Payments.",
+            "Orders.",
+            "Webhook handlers.",
+            "Job processing."
+          ]
+        }
+      ]
+    }
+  ]
+}
