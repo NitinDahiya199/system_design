@@ -99,6 +99,13 @@ document.addEventListener("DOMContentLoaded", async function () {
       { id: "what-interviewer-expects", title: "What interviewer expects", show: hasList(item.whatInterviewerExpects) },
       { id: "follow-up-questions", title: "Follow-up questions", show: hasList(item.followUpQuestions) },
       { id: "senior-considerations", title: "Senior-level considerations", show: hasList(item.seniorConsiderations) },
+      { id: "migration-playbook", title: "Migration playbook", show: !!item.migrationPlaybook },
+      { id: "slo-pack", title: "SLOs and error budgets", show: !!item.sloPack },
+      { id: "incident-runbook", title: "Incident runbook", show: !!item.incidentRunbook },
+      { id: "cost-model", title: "Cost and capacity", show: !!item.costModel },
+      { id: "tenant-isolation-notes", title: "Tenant isolation", show: hasList(item.tenantIsolationNotes) },
+      { id: "abuse-fraud-notes", title: "Abuse and fraud", show: hasList(item.abuseFraudNotes) },
+      { id: "evolution-stages", title: "Evolution path", show: hasList(item.evolutionStages) },
       { id: "multi-region-notes", title: "Multi-region design", show: hasList(item.multiRegionNotes) },
       { id: "observability-notes", title: "Observability", show: hasList(item.observabilityNotes) },
       { id: "security-privacy-notes", title: "Security and privacy", show: hasList(item.securityPrivacyNotes) },
@@ -147,6 +154,13 @@ document.addEventListener("DOMContentLoaded", async function () {
         listPanelBlock("what-interviewer-expects", "What interviewer expects", item.whatInterviewerExpects) +
         listPanelBlock("follow-up-questions", "Common follow-up questions", item.followUpQuestions) +
         listPanelBlock("senior-considerations", "Senior-level considerations", item.seniorConsiderations) +
+        migrationPlaybookBlock(item.migrationPlaybook) +
+        sloPackBlock(item.sloPack) +
+        incidentRunbookBlock(item.incidentRunbook) +
+        costModelBlock(item.costModel) +
+        listPanelBlock("tenant-isolation-notes", "Tenant isolation", item.tenantIsolationNotes) +
+        listPanelBlock("abuse-fraud-notes", "Abuse and fraud", item.abuseFraudNotes) +
+        evolutionStagesBlock(item.evolutionStages) +
         listPanelBlock("multi-region-notes", "Multi-region design", item.multiRegionNotes) +
         listPanelBlock("observability-notes", "Observability and debugging signals", item.observabilityNotes) +
         listPanelBlock("security-privacy-notes", "Security and privacy decisions", item.securityPrivacyNotes) +
@@ -522,6 +536,144 @@ document.addEventListener("DOMContentLoaded", async function () {
         .join("") +
       "</ul>" +
       "</article>"
+    );
+  }
+
+  function migrationPlaybookBlock(migrationPlaybook) {
+    if (!migrationPlaybook) {
+      return "";
+    }
+
+    return (
+      '<section class="detail-section panel" id="migration-playbook">' +
+      "<h2>" + helper.escapeHtml(migrationPlaybook.title || "Migration playbook") + "</h2>" +
+      (hasText(migrationPlaybook.intro) ? "<p>" + helper.escapeHtml(migrationPlaybook.intro) + "</p>" : "") +
+      (hasList(migrationPlaybook.phases)
+        ? '<div class="step-flow">' +
+          migrationPlaybook.phases
+            .map(function (phase, index) {
+              return (
+                '<article class="flow-step">' +
+                '<span class="flow-number">' + helper.escapeHtml(phase.step || String(index + 1)) + "</span>" +
+                "<h3>" + helper.escapeHtml(phase.title) + "</h3>" +
+                "<p>" + helper.escapeHtml(phase.description) + "</p>" +
+                "</article>"
+              );
+            })
+            .join("") +
+          "</div>"
+        : "") +
+      (hasList(migrationPlaybook.risks)
+        ? '<div class="detail-list-wrap"><h3>What can go wrong</h3><ul class="check-list">' +
+          migrationPlaybook.risks
+            .map(function (risk) {
+              return "<li>" + helper.escapeHtml(risk) + "</li>";
+            })
+            .join("") +
+          "</ul></div>"
+        : "") +
+      (hasText(migrationPlaybook.closing) ? '<p class="takeaway-note">' + helper.escapeHtml(migrationPlaybook.closing) + "</p>" : "") +
+      "</section>"
+    );
+  }
+
+  function sloPackBlock(sloPack) {
+    if (!sloPack) {
+      return "";
+    }
+
+    return (
+      '<section class="detail-section panel" id="slo-pack">' +
+      "<h2>" + helper.escapeHtml(sloPack.title || "SLOs and error budgets") + "</h2>" +
+      (hasText(sloPack.intro) ? "<p>" + helper.escapeHtml(sloPack.intro) + "</p>" : "") +
+      '<div class="estimation-grid">' +
+      listCard("Key indicators", sloPack.indicators) +
+      listCard("Target examples", sloPack.targets) +
+      listCard("Error budget policy", sloPack.errorBudgetPolicies) +
+      listCard("Interview framing", sloPack.interviewMoves) +
+      "</div>" +
+      (hasText(sloPack.closing) ? '<p class="takeaway-note">' + helper.escapeHtml(sloPack.closing) + "</p>" : "") +
+      "</section>"
+    );
+  }
+
+  function incidentRunbookBlock(incidentRunbook) {
+    if (!incidentRunbook) {
+      return "";
+    }
+
+    return (
+      '<section class="detail-section panel" id="incident-runbook">' +
+      "<h2>" + helper.escapeHtml(incidentRunbook.title || "Incident runbook") + "</h2>" +
+      (hasText(incidentRunbook.intro) ? "<p>" + helper.escapeHtml(incidentRunbook.intro) + "</p>" : "") +
+      (hasList(incidentRunbook.stages)
+        ? '<div class="step-flow">' +
+          incidentRunbook.stages
+            .map(function (stage, index) {
+              return (
+                '<article class="flow-step">' +
+                '<span class="flow-number">' + helper.escapeHtml(stage.step || String(index + 1)) + "</span>" +
+                "<h3>" + helper.escapeHtml(stage.title) + "</h3>" +
+                "<p>" + helper.escapeHtml(stage.description) + "</p>" +
+                "</article>"
+              );
+            })
+            .join("") +
+          "</div>"
+        : "") +
+      '<div class="estimation-grid">' +
+      listCard("Immediate actions", incidentRunbook.immediateActions) +
+      listCard("Communication rules", incidentRunbook.communicationRules) +
+      listCard("Recovery checks", incidentRunbook.recoveryChecks) +
+      listCard("Postmortem follow-up", incidentRunbook.postmortemActions) +
+      "</div>" +
+      (hasText(incidentRunbook.closing) ? '<p class="takeaway-note">' + helper.escapeHtml(incidentRunbook.closing) + "</p>" : "") +
+      "</section>"
+    );
+  }
+
+  function costModelBlock(costModel) {
+    if (!costModel) {
+      return "";
+    }
+
+    return (
+      '<section class="detail-section panel" id="cost-model">' +
+      "<h2>" + helper.escapeHtml(costModel.title || "Cost and capacity") + "</h2>" +
+      (hasText(costModel.intro) ? "<p>" + helper.escapeHtml(costModel.intro) + "</p>" : "") +
+      '<div class="estimation-grid">' +
+      listCard("Main cost drivers", costModel.costDrivers) +
+      listCard("Capacity checks", costModel.capacityChecks) +
+      listCard("Optimization levers", costModel.optimizationLevers) +
+      listCard("When to spend more", costModel.whenToSpendMore) +
+      "</div>" +
+      (hasText(costModel.closing) ? '<p class="takeaway-note">' + helper.escapeHtml(costModel.closing) + "</p>" : "") +
+      "</section>"
+    );
+  }
+
+  function evolutionStagesBlock(evolutionStages) {
+    if (!hasList(evolutionStages)) {
+      return "";
+    }
+
+    return (
+      '<section class="detail-section panel" id="evolution-stages">' +
+      "<h2>Evolution path</h2>" +
+      '<div class="step-flow">' +
+      evolutionStages
+        .map(function (stage, index) {
+          return (
+            '<article class="flow-step">' +
+            '<span class="flow-number">' + helper.escapeHtml(stage.stage || String(index + 1)) + "</span>" +
+            "<h3>" + helper.escapeHtml(stage.title) + "</h3>" +
+            "<p>" + helper.escapeHtml(stage.description) + "</p>" +
+            "</article>"
+          );
+        })
+        .join("") +
+      "</div>" +
+      "</section>"
     );
   }
 

@@ -94,9 +94,76 @@
         "Ignoring single points of failure like one database or one load balancer.",
         "Forgetting that maintenance and bad deployments can also hurt availability."
       ],
+      "sloPack": {
+        "title": "Availability targets in production",
+        "intro": "Senior answers usually turn availability into a measurable target instead of a vague wish.",
+        "indicators": [
+          "Successful user requests",
+          "User-visible error rate",
+          "P95 latency on the critical path"
+        ],
+        "targets": [
+          "A product-specific success-rate target such as 99.9 or 99.95 percent",
+          "A latency target tied to user expectations",
+          "A stricter target for checkout or auth than for internal dashboards"
+        ],
+        "errorBudgetPolicies": [
+          "Slow risky launches when the budget is being burned too quickly",
+          "Prefer rollback or traffic shift before deep debugging during active incidents",
+          "Separate the most critical user journey from lower-priority features"
+        ],
+        "interviewMoves": [
+          "Ask what downtime is acceptable",
+          "Tie the target to business harm",
+          "Explain what the team does when reliability slips"
+        ],
+        "closing": "Availability becomes a senior discussion when it is connected to a target and an operating policy."
+      },
+      "incidentRunbook": {
+        "title": "Availability incident flow",
+        "intro": "High availability is not only about extra replicas. It is also about how the team responds when those replicas are not enough.",
+        "stages": [
+          {
+            "step": "1",
+            "title": "Confirm blast radius",
+            "description": "Check whether the issue is local to one service, one zone, or a wider region."
+          },
+          {
+            "step": "2",
+            "title": "Reduce user harm",
+            "description": "Fail over, shed non-critical work, or route traffic away from the bad path."
+          },
+          {
+            "step": "3",
+            "title": "Validate recovery",
+            "description": "Watch success rate, latency, and dependency health before declaring the system healthy."
+          }
+        ],
+        "immediateActions": [
+          "Protect the critical user journey first",
+          "Use known-safe mitigation paths",
+          "Avoid making multiple risky changes during the same incident"
+        ],
+        "communicationRules": [
+          "State user impact clearly",
+          "Share what mitigation is active",
+          "Keep updates short and factual"
+        ],
+        "recoveryChecks": [
+          "Success rate recovered",
+          "Latency stabilized",
+          "Traffic distribution looks healthy again"
+        ],
+        "postmortemActions": [
+          "Identify whether a bad deployment, dependency failure, or capacity gap started the incident",
+          "Update failover or rollout safeguards"
+        ],
+        "closing": "Availability is partly an architecture property and partly an operating habit."
+      },
       "relatedTopics": [
         { "category": "components", "id": "database-replica", "title": "Database Replica" },
-        { "category": "case-studies", "id": "uber", "title": "Design Uber" }
+        { "category": "case-studies", "id": "uber", "title": "Design Uber" },
+        { "category": "production-depth", "id": "sli-slo-sla-error-budgets", "title": "SLIs, SLOs, SLAs, and Error Budgets" }
       ],
       "sections": [
         {
@@ -171,10 +238,6 @@
         "Track replica lag, stale-read complaints, and conflicting-write incidents.",
         "Measure how often user flows are blocked by stronger consistency choices."
       ],
-      "relatedTopics": [
-        { "category": "fundamentals", "id": "availability", "title": "Availability" },
-        { "category": "case-studies", "id": "dropbox", "title": "Design Dropbox" }
-      ],
       "sections": [
         {
           "title": "Strong vs eventual",
@@ -197,7 +260,23 @@
             "Mention replica lag.",
             "Talk about user impact."
           ]
+        },
+        {
+          "title": "Production consistency decisions",
+          "paragraphs": [
+            "Senior answers often go one step further and say which paths need read-after-write guarantees, which paths can tolerate stale data, and what the user sees during lag or conflict."
+          ],
+          "bullets": [
+            "Call out read-after-write needs explicitly.",
+            "Mention whether one writer owns each entity.",
+            "Explain how stale data is surfaced or hidden from users."
+          ]
         }
+      ],
+      "relatedTopics": [
+        { "category": "fundamentals", "id": "availability", "title": "Availability" },
+        { "category": "case-studies", "id": "dropbox", "title": "Design Dropbox" },
+        { "category": "production-depth", "id": "quorum-leader-election-and-split-brain", "title": "Quorum, Leader Election, and Split Brain" }
       ]
     },
     {
@@ -229,9 +308,42 @@
         "Ignoring rebalancing when a shard grows too hot.",
         "Forgetting that joins and transactions are harder across shards."
       ],
+      "migrationPlaybook": {
+        "title": "Re-sharding playbook",
+        "intro": "Re-sharding is not just moving data. It is moving data while live traffic keeps flowing.",
+        "phases": [
+          {
+            "step": "1",
+            "title": "Choose a safer target key or layout",
+            "description": "Decide the new shard strategy based on the real hot-spot pattern, not guesswork."
+          },
+          {
+            "step": "2",
+            "title": "Copy gradually",
+            "description": "Move data in controlled batches while the live system still works."
+          },
+          {
+            "step": "3",
+            "title": "Cut reads and writes over carefully",
+            "description": "Shift traffic a little at a time and compare hot-key behavior before full cutover."
+          }
+        ],
+        "risks": [
+          "Backfill traffic hurting the live database",
+          "Old code still assuming the previous shard key",
+          "One hot entity staying hot even after re-sharding"
+        ],
+        "closing": "A good senior answer says how the system changes safely, not only that it will be re-sharded someday."
+      },
+      "seniorConsiderations": [
+        "Hot partitions matter more than average distribution.",
+        "Re-sharding needs live-migration thinking, not just a new diagram.",
+        "Entity ownership and cross-shard transactions should be kept as simple as possible."
+      ],
       "relatedTopics": [
         { "category": "components", "id": "database-replica", "title": "Database Replica" },
-        { "category": "case-studies", "id": "news-feed", "title": "Design a News Feed" }
+        { "category": "case-studies", "id": "news-feed", "title": "Design a News Feed" },
+        { "category": "production-depth", "id": "data-migrations-and-schema-evolution", "title": "Data Migrations and Schema Evolution" }
       ],
       "sections": [
         {
@@ -323,9 +435,37 @@
         "Track replication lag, failed replication events, and failover recovery time.",
         "Alert when read traffic is hitting stale replicas on sensitive paths."
       ],
+      "migrationPlaybook": {
+        "title": "Safe failover and promotion",
+        "intro": "Replication becomes a senior topic when you explain how promotion stays safe under failure instead of only saying a replica takes over.",
+        "phases": [
+          {
+            "step": "1",
+            "title": "Detect primary failure carefully",
+            "description": "Avoid promoting a new leader after a short network glitch that may still leave the old primary active."
+          },
+          {
+            "step": "2",
+            "title": "Promote one clear writer",
+            "description": "Use a safe ownership rule so two nodes do not both accept writes."
+          },
+          {
+            "step": "3",
+            "title": "Rebuild lagging replicas",
+            "description": "Make sure followers catch up and stale clients move to the new leader safely."
+          }
+        ],
+        "risks": [
+          "Split brain during network partitions",
+          "Promoting a replica that is missing critical writes",
+          "Old clients still writing to the former primary"
+        ],
+        "closing": "Replication is easy to draw and hard to fail over safely. That is the senior difference."
+      },
       "relatedTopics": [
         { "category": "components", "id": "database-replica", "title": "Database Replica" },
-        { "category": "fundamentals", "id": "consistency", "title": "Consistency" }
+        { "category": "fundamentals", "id": "consistency", "title": "Consistency" },
+        { "category": "production-depth", "id": "quorum-leader-election-and-split-brain", "title": "Quorum, Leader Election, and Split Brain" }
       ],
       "sections": [
         {
@@ -337,6 +477,17 @@
             "Primary handles writes.",
             "Replicas copy changes.",
             "Failover promotes a replica when needed."
+          ]
+        },
+        {
+          "title": "What senior interviewers expect next",
+          "paragraphs": [
+            "After that baseline explanation, strong answers discuss promotion safety, stale clients, and whether majority agreement or other leader-election rules protect the write path."
+          ],
+          "bullets": [
+            "How is one writer chosen?",
+            "How do you avoid two active leaders?",
+            "How do clients learn where writes go now?"
           ]
         }
       ]
@@ -575,9 +726,50 @@
         "Track latency percentiles, retry counts, timeout rates, and circuit-breaker trips.",
         "Watch for cascading failures caused by one slow dependency."
       ],
+      "incidentRunbook": {
+        "title": "Fault-tolerance response flow",
+        "intro": "The team response is part of fault tolerance because a good system still needs good mitigation during real failures.",
+        "stages": [
+          {
+            "step": "1",
+            "title": "Contain the blast radius",
+            "description": "Stop retries, pause risky background work, or isolate the hot dependency before the failure spreads."
+          },
+          {
+            "step": "2",
+            "title": "Protect the critical path",
+            "description": "Keep the most important user flows alive with fallback modes, degraded responses, or priority rules."
+          },
+          {
+            "step": "3",
+            "title": "Recover with evidence",
+            "description": "Use metrics and queue state to confirm the system is recovering instead of guessing."
+          }
+        ],
+        "immediateActions": [
+          "Prefer safe degradation over heroic risky fixes",
+          "Check retry storms and queue buildup first",
+          "Use circuit breakers and load-shedding controls early"
+        ],
+        "communicationRules": [
+          "Describe what is degraded and what still works",
+          "Be explicit when the system is in fallback mode"
+        ],
+        "recoveryChecks": [
+          "Backlogs are shrinking",
+          "Timeout rate is dropping",
+          "Critical user flows are stable"
+        ],
+        "postmortemActions": [
+          "Add missing backpressure or isolation controls",
+          "Tune timeouts, retries, and fallback defaults"
+        ],
+        "closing": "Senior fault-tolerance thinking includes the incident path, not only the steady-state architecture."
+      },
       "relatedTopics": [
         { "category": "fundamentals", "id": "availability", "title": "Availability" },
-        { "category": "components", "id": "queue", "title": "Queue" }
+        { "category": "components", "id": "queue", "title": "Queue" },
+        { "category": "production-depth", "id": "incident-response-and-operational-readiness", "title": "Incident Response and Operational Readiness" }
       ],
       "sections": [
         {
@@ -652,11 +844,13 @@
       ],
       "seniorConsiderations": [
         "Idempotency becomes more important when external dependencies are slow or unreliable.",
-        "It should be part of the API contract, not only an internal patch."
+        "It should be part of the API contract, not only an internal patch.",
+        "Out-of-order or replayed events should be handled together with duplicate retries."
       ],
       "relatedTopics": [
         { "category": "fundamentals", "id": "fault-tolerance", "title": "Fault Tolerance" },
-        { "category": "case-studies", "id": "payment-system", "title": "Design a Payment System" }
+        { "category": "case-studies", "id": "payment-system", "title": "Design a Payment System" },
+        { "category": "production-depth", "id": "time-ordering-and-clock-skew", "title": "Time, Ordering, and Clock Skew" }
       ],
       "sections": [
         {
@@ -669,6 +863,17 @@
             "Orders.",
             "Webhook handlers.",
             "Job processing."
+          ]
+        },
+        {
+          "title": "Exactly-once myths",
+          "paragraphs": [
+            "In interviews, it is stronger to say you aim for safe at-least-once processing with idempotent handlers than to claim exactly-once behavior everywhere with no explanation."
+          ],
+          "bullets": [
+            "Store deduplication keys durably.",
+            "Make state transitions safe to repeat.",
+            "Treat replay and retry as normal conditions."
           ]
         }
       ]

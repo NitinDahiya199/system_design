@@ -225,9 +225,42 @@
         "Sending important read-after-write traffic to a lagging replica.",
         "Treating replication as a replacement for backups."
       ],
+      "seniorConsiderations": [
+        "Replica failover should be explained together with write ownership and stale-client behavior.",
+        "Promotion safety matters as much as failover speed.",
+        "Replica topologies should match both read traffic and failure model."
+      ],
+      "migrationPlaybook": {
+        "title": "Replica failover playbook",
+        "intro": "A senior explanation goes beyond 'the replica becomes primary' and explains how that switch stays safe.",
+        "phases": [
+          {
+            "step": "1",
+            "title": "Confirm the failure",
+            "description": "Avoid promoting a new primary because of a short network glitch or one noisy health check."
+          },
+          {
+            "step": "2",
+            "title": "Promote one safe writer",
+            "description": "Choose a new primary with the best data position and block the old writer path."
+          },
+          {
+            "step": "3",
+            "title": "Redirect traffic and rebuild followers",
+            "description": "Move write traffic, then rejoin lagging replicas safely."
+          }
+        ],
+        "risks": [
+          "Split brain creating two writers",
+          "Promoting a lagging replica",
+          "Read traffic still hitting stale replicas on sensitive paths"
+        ],
+        "closing": "The interview win is showing that failover is controlled, not magical."
+      },
       "relatedTopics": [
         { "category": "fundamentals", "id": "consistency", "title": "Consistency" },
-        { "category": "fundamentals", "id": "availability", "title": "Availability" }
+        { "category": "fundamentals", "id": "availability", "title": "Availability" },
+        { "category": "production-depth", "id": "quorum-leader-election-and-split-brain", "title": "Quorum, Leader Election, and Split Brain" }
       ],
       "sections": [
         {
@@ -337,9 +370,68 @@
         "Choose storage with retention, encryption, and audit needs in mind.",
         "Sensitive columns may need stronger access controls than the rest of the dataset."
       ],
+      "migrationPlaybook": {
+        "title": "Storage migration playbook",
+        "intro": "Storage migrations become much safer when you separate backward compatibility, data copy, cutover, and cleanup.",
+        "phases": [
+          {
+            "step": "1",
+            "title": "Make the schema compatible first",
+            "description": "Add new fields, indexes, or structures without breaking old readers and writers."
+          },
+          {
+            "step": "2",
+            "title": "Backfill or dual write carefully",
+            "description": "Move or duplicate data in a controlled way while validating correctness."
+          },
+          {
+            "step": "3",
+            "title": "Cut over gradually",
+            "description": "Move reads or writes in small steps with comparison checks."
+          },
+          {
+            "step": "4",
+            "title": "Remove old paths only after stability",
+            "description": "Delete old columns, indexes, or stores after the new path is proven."
+          }
+        ],
+        "risks": [
+          "Backfills hurting live workload latency",
+          "Dual-write divergence",
+          "Old code paths still depending on removed fields"
+        ],
+        "closing": "A migration answer sounds senior when it explains how the change happens safely in production."
+      },
+      "costModel": {
+        "title": "Storage cost and growth",
+        "intro": "Database choices affect not only correctness and latency, but also storage cost, replica cost, and migration cost over time.",
+        "costDrivers": [
+          "Replica count",
+          "Index count and size",
+          "Cross-region replication",
+          "Long retention windows"
+        ],
+        "capacityChecks": [
+          "Which queries dominate load",
+          "Which tables or collections grow fastest",
+          "Whether schema changes expand write amplification"
+        ],
+        "optimizationLevers": [
+          "Index only what the hot queries need",
+          "Archive cold data",
+          "Use specialized stores only when they clearly earn their complexity"
+        ],
+        "whenToSpendMore": [
+          "Critical correctness paths",
+          "Read-heavy user journeys that need low latency",
+          "Recovery and resilience requirements"
+        ],
+        "closing": "Senior storage design includes the future cost of operating and evolving the data model."
+      },
       "relatedTopics": [
         { "category": "interview-prep", "id": "apis-and-data", "title": "APIs and Data Design" },
-        { "category": "fundamentals", "id": "partitioning", "title": "Partitioning and Sharding" }
+        { "category": "fundamentals", "id": "partitioning", "title": "Partitioning and Sharding" },
+        { "category": "production-depth", "id": "data-migrations-and-schema-evolution", "title": "Data Migrations and Schema Evolution" }
       ],
       "sections": [
         {
@@ -406,9 +498,37 @@
         "Track indexing delay, query latency, zero-result rate, and ranking-quality signals.",
         "Separate source-of-truth correctness issues from search-index freshness issues."
       ],
+      "migrationPlaybook": {
+        "title": "Reindexing safely",
+        "intro": "Search systems often evolve through versioned indexes rather than one risky in-place change.",
+        "phases": [
+          {
+            "step": "1",
+            "title": "Build a new index version",
+            "description": "Create the new schema or mapping without breaking the old search path."
+          },
+          {
+            "step": "2",
+            "title": "Backfill and compare",
+            "description": "Reindex content and compare sample queries before real cutover."
+          },
+          {
+            "step": "3",
+            "title": "Shift reads gradually",
+            "description": "Move search traffic in controlled steps and watch freshness and query quality."
+          }
+        ],
+        "risks": [
+          "Large reindex jobs starving live indexing",
+          "Search relevance changes hidden by healthy infrastructure metrics",
+          "Deleted or private content reappearing in the new index"
+        ],
+        "closing": "Search migrations are safer when index versions and cutovers are explicit."
+      },
       "relatedTopics": [
         { "category": "components", "id": "queue", "title": "Queue" },
-        { "category": "case-studies", "id": "instagram", "title": "Design Instagram" }
+        { "category": "case-studies", "id": "instagram", "title": "Design Instagram" },
+        { "category": "production-depth", "id": "data-migrations-and-schema-evolution", "title": "Data Migrations and Schema Evolution" }
       ],
       "sections": [
         {
@@ -454,9 +574,63 @@
         "Ignoring upload resume and chunking.",
         "Forgetting access control and signed URLs."
       ],
+      "costModel": {
+        "title": "Object storage cost thinking",
+        "intro": "At scale, blob systems are often dominated by storage growth, egress, and replication choices.",
+        "costDrivers": [
+          "Raw storage volume",
+          "Cross-region replication",
+          "Download or streaming bandwidth",
+          "Version history and retention"
+        ],
+        "capacityChecks": [
+          "Average and peak upload rate",
+          "Read-versus-write imbalance",
+          "Recovery time after a backlog or provider issue"
+        ],
+        "optimizationLevers": [
+          "Tier cold data",
+          "Deduplicate or compress when it truly helps",
+          "Keep metadata and blobs separate so each layer scales sensibly"
+        ],
+        "whenToSpendMore": [
+          "Critical durability requirements",
+          "Large public delivery paths where CDN savings justify the spend",
+          "Compliance or residency requirements"
+        ],
+        "closing": "Blob storage answers sound more senior when they include retention and egress cost, not only durability."
+      },
+      "migrationPlaybook": {
+        "title": "Blob and metadata evolution",
+        "intro": "File systems often evolve by moving metadata, chunk layout, or storage classes separately instead of one huge migration.",
+        "phases": [
+          {
+            "step": "1",
+            "title": "Version the metadata",
+            "description": "Keep enough metadata to know which storage layout or object format a file uses."
+          },
+          {
+            "step": "2",
+            "title": "Move cold or low-risk files first",
+            "description": "Use low-risk data as the first migration wave before hot objects."
+          },
+          {
+            "step": "3",
+            "title": "Validate download and permission paths",
+            "description": "Confirm access control and file integrity before cleaning up the old path."
+          }
+        ],
+        "risks": [
+          "Broken download links during cutover",
+          "Permission mismatches after migration",
+          "Unexpected egress spikes"
+        ],
+        "closing": "File systems usually need metadata-aware migrations, not just object copy jobs."
+      },
       "relatedTopics": [
         { "category": "case-studies", "id": "dropbox", "title": "Design Dropbox" },
-        { "category": "case-studies", "id": "youtube", "title": "Design YouTube" }
+        { "category": "case-studies", "id": "youtube", "title": "Design YouTube" },
+        { "category": "production-depth", "id": "cost-capacity-and-growth-planning", "title": "Cost, Capacity, and Growth Planning" }
       ],
       "sections": [
         {
@@ -523,9 +697,37 @@
         "Track producer rate, consumer lag, dead-letter growth, and redelivery counts.",
         "Alert on sustained lag before it reaches user-facing impact."
       ],
+      "migrationPlaybook": {
+        "title": "Schema and replay evolution",
+        "intro": "Broker-heavy systems become tricky when producers and consumers change at different times.",
+        "phases": [
+          {
+            "step": "1",
+            "title": "Add backward-compatible schema changes",
+            "description": "Roll out producers and consumers so old and new versions can both survive during the transition."
+          },
+          {
+            "step": "2",
+            "title": "Replay safely",
+            "description": "Use durable offsets, idempotent consumers, and clear ownership before replaying backlogged data."
+          },
+          {
+            "step": "3",
+            "title": "Retire old versions carefully",
+            "description": "Clean up deprecated consumers only after lag and replay risk are understood."
+          }
+        ],
+        "risks": [
+          "Out-of-order replay surprising downstream systems",
+          "Consumers assuming exactly-once delivery",
+          "Old consumers breaking on new event shapes"
+        ],
+        "closing": "Messaging systems sound senior when you explain replay safety and schema compatibility together."
+      },
       "relatedTopics": [
         { "category": "components", "id": "queue", "title": "Queue" },
-        { "category": "components", "id": "pub-sub", "title": "Pub/Sub" }
+        { "category": "components", "id": "pub-sub", "title": "Pub/Sub" },
+        { "category": "production-depth", "id": "time-ordering-and-clock-skew", "title": "Time, Ordering, and Clock Skew" }
       ],
       "sections": [
         {
@@ -538,6 +740,17 @@
             "Broker.",
             "Consumer.",
             "Retry and dead-letter path."
+          ]
+        },
+        {
+          "title": "Ordering and replay reality",
+          "paragraphs": [
+            "Senior answers usually say whether ordering is per partition, per key, or only best effort. They also mention that consumers should handle duplicates, late events, and replay safely."
+          ],
+          "bullets": [
+            "Do not assume global order without saying how.",
+            "Use idempotent consumers on important flows.",
+            "Treat replay as a normal operational tool."
           ]
         }
       ]
@@ -580,9 +793,35 @@
         "Track per-topic publish rate, subscriber lag, and dropped or failed event processing.",
         "Use event tracing to see where fan-out chains become slow or fail."
       ],
+      "costModel": {
+        "title": "Fan-out cost and risk",
+        "intro": "Pub/Sub can look cheap at first and then become expensive once many subscribers, retries, or replay windows are added.",
+        "costDrivers": [
+          "High fan-out multiplier",
+          "Long retention for replay",
+          "Repeated redelivery and reprocessing"
+        ],
+        "capacityChecks": [
+          "Which topics have the largest subscriber count",
+          "Which consumers fall behind first",
+          "How quickly one bad event can fan out widely"
+        ],
+        "optimizationLevers": [
+          "Separate high-value topics from noisy ones",
+          "Validate events early before wide fan-out",
+          "Limit retention where replay adds little value"
+        ],
+        "whenToSpendMore": [
+          "Critical multi-service workflows",
+          "Debugging-sensitive pipelines that truly need replay",
+          "High-priority event isolation"
+        ],
+        "closing": "Fan-out systems need both observability and cost discipline because one event can multiply work quickly."
+      },
       "relatedTopics": [
         { "category": "components", "id": "message-broker", "title": "Message Broker" },
-        { "category": "case-studies", "id": "notification-system", "title": "Design a Notification System" }
+        { "category": "case-studies", "id": "notification-system", "title": "Design a Notification System" },
+        { "category": "production-depth", "id": "multi-tenant-design-and-isolation", "title": "Multi-Tenant Design and Isolation" }
       ],
       "sections": [
         {
@@ -709,9 +948,20 @@
         "Different endpoints may need different identities, limits, and burst behavior.",
         "Overload policies should work together with backpressure and priority rules."
       ],
+      "tenantIsolationNotes": [
+        "Per-tenant quotas protect smaller tenants from one giant tenant.",
+        "Rate limits may need to differ by endpoint, tenant tier, or abuse risk.",
+        "Noisy-neighbor protection is part of fairness, not only security."
+      ],
+      "abuseFraudNotes": [
+        "Volume abuse is not the same as fraud. Fraud may stay under simple request-rate thresholds.",
+        "Use identity-aware limits such as account, API key, tenant, or device, not only IP.",
+        "High-risk paths may need extra signals or review, not just stricter counters."
+      ],
       "relatedTopics": [
         { "category": "case-studies", "id": "rate-limiter", "title": "Design a Rate Limiter" },
-        { "category": "components", "id": "api-gateway", "title": "API Gateway and Proxy" }
+        { "category": "components", "id": "api-gateway", "title": "API Gateway and Proxy" },
+        { "category": "production-depth", "id": "fraud-abuse-and-trust-safety", "title": "Fraud, Abuse, and Trust Safety" }
       ],
       "sections": [
         {
@@ -780,9 +1030,50 @@
         "Use strong expiry and revocation strategy for risky sessions.",
         "Audit who accessed sensitive actions and when."
       ],
+      "incidentRunbook": {
+        "title": "Auth incident flow",
+        "intro": "Security-sensitive systems need an explicit response story when sessions or credentials are exposed.",
+        "stages": [
+          {
+            "step": "1",
+            "title": "Contain exposure",
+            "description": "Revoke tokens, rotate keys or secrets, and stop the active abuse path."
+          },
+          {
+            "step": "2",
+            "title": "Understand blast radius",
+            "description": "Identify which sessions, users, or actions may be affected."
+          },
+          {
+            "step": "3",
+            "title": "Recover and harden",
+            "description": "Restore safe auth flows and add stronger detection or storage protections."
+          }
+        ],
+        "immediateActions": [
+          "Revoke risky sessions quickly",
+          "Rotate relevant secrets if needed",
+          "Enable stronger auth checks for suspicious users"
+        ],
+        "communicationRules": [
+          "Separate confirmed exposure from suspected exposure",
+          "Notify impacted users clearly when required"
+        ],
+        "recoveryChecks": [
+          "Revocation path is working",
+          "Login and refresh flows are healthy",
+          "Abuse signals are dropping"
+        ],
+        "postmortemActions": [
+          "Tighten token handling",
+          "Improve audit and alert coverage for sensitive actions"
+        ],
+        "closing": "Senior auth design includes the incident path because the failure mode is often security-sensitive."
+      },
       "relatedTopics": [
         { "category": "components", "id": "api-gateway", "title": "API Gateway and Proxy" },
-        { "category": "case-studies", "id": "payment-system", "title": "Design a Payment System" }
+        { "category": "case-studies", "id": "payment-system", "title": "Design a Payment System" },
+        { "category": "production-depth", "id": "data-retention-deletion-and-compliance", "title": "Data Retention, Deletion, and Compliance" }
       ],
       "sections": [
         {

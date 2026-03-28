@@ -39,7 +39,9 @@
         "Main user actions",
         "Scale and peak traffic",
         "Freshness and consistency needs",
-        "Reliability and abuse risks"
+        "Reliability and abuse risks",
+        "Compliance, tenancy, and data residency",
+        "Migration and operational ownership"
       ],
       "whatInterviewerExpects": [
         "A short focused question set, not endless questions.",
@@ -170,11 +172,14 @@
       "seniorConsiderations": [
         "Clarify compliance, privacy, and audit needs early for sensitive products.",
         "Ask whether the system is regional or multi-region from day one.",
-        "Use clarification questions to reveal operational risk, not just product features."
+        "Use clarification questions to reveal operational risk, not just product features.",
+        "Ask whether the product is multi-tenant and whether large tenants need stronger isolation.",
+        "Ask what safe rollout or migration constraints already exist in the current system."
       ],
       "relatedTopics": [
         { "category": "interview-prep", "id": "estimate-scale", "title": "Estimate Scale" },
-        { "category": "case-studies", "id": "url-shortener", "title": "Design a URL Shortener" }
+        { "category": "case-studies", "id": "url-shortener", "title": "Design a URL Shortener" },
+        { "category": "production-depth", "id": "multi-tenant-design-and-isolation", "title": "Multi-Tenant Design and Isolation" }
       ],
       "sections": [
         {
@@ -187,6 +192,18 @@
             "How many users and requests do we expect?",
             "How fresh must the data be?",
             "What failures are acceptable or unacceptable?"
+          ]
+        },
+        {
+          "title": "Senior requirement questions",
+          "paragraphs": [
+            "Senior clarification often asks what current system constraints already exist. That includes compliance boundaries, migration limits, tenant isolation, and what the team can safely change this quarter."
+          ],
+          "bullets": [
+            "Any residency, retention, or audit requirements?",
+            "Single-tenant or multi-tenant?",
+            "Any existing system we must migrate gradually?",
+            "Which operational risk matters most: downtime, wrong data, or runaway cost?"
           ]
         }
       ]
@@ -353,9 +370,36 @@
         "Did I mention bandwidth for media-heavy systems?",
         "Did I connect the estimate back to the architecture?"
       ],
+      "costModel": {
+        "title": "What senior estimates add",
+        "intro": "Senior estimates go one step further than basic QPS math. They also check headroom, peak multipliers, recovery load, and the cost of the chosen design.",
+        "costDrivers": [
+          "Replica count and always-on capacity",
+          "Storage growth and retention",
+          "Bandwidth or CDN spend for media-heavy systems",
+          "Worker or queue cost for asynchronous pipelines"
+        ],
+        "capacityChecks": [
+          "Average versus peak traffic",
+          "Burst load during launches or incidents",
+          "Recovery load after a backlog builds up"
+        ],
+        "optimizationLevers": [
+          "Batch low-priority work",
+          "Cache hot paths only",
+          "Reduce unnecessary cross-region traffic"
+        ],
+        "whenToSpendMore": [
+          "Critical reliability paths",
+          "Known peak events",
+          "Latency-sensitive revenue paths"
+        ],
+        "closing": "Useful estimation is not just rough math. It is rough math that changes design and spending decisions."
+      },
       "relatedTopics": [
         { "category": "fundamentals", "id": "latency-throughput", "title": "Latency and Throughput" },
-        { "category": "interview-prep", "id": "high-level-design", "title": "High-level Design" }
+        { "category": "interview-prep", "id": "high-level-design", "title": "High-level Design" },
+        { "category": "production-depth", "id": "cost-capacity-and-growth-planning", "title": "Cost, Capacity, and Growth Planning" }
       ],
       "sections": [
         {
@@ -525,9 +569,27 @@
         "Show how the design can evolve from simple to large scale.",
         "Say what observability signals you would need before adding more complexity."
       ],
+      "evolutionStages": [
+        {
+          "stage": "1",
+          "title": "Day-one baseline",
+          "description": "Use the smallest clean design that supports the core user journey and the current team."
+        },
+        {
+          "stage": "2",
+          "title": "10x growth step",
+          "description": "Add replicas, queues, caches, or specialized stores only where the baseline has a real pain point."
+        },
+        {
+          "stage": "3",
+          "title": "Business-critical step",
+          "description": "Add safer rollouts, stronger incident tooling, and clearer service boundaries when blast radius and ownership start to matter more."
+        }
+      ],
       "relatedTopics": [
         { "category": "components", "id": "queue", "title": "Queue" },
-        { "category": "case-studies", "id": "dropbox", "title": "Design Dropbox" }
+        { "category": "case-studies", "id": "dropbox", "title": "Design Dropbox" },
+        { "category": "production-depth", "id": "architecture-evolution-over-growth", "title": "Architecture Evolution Over Growth" }
       ],
       "sections": [
         {
@@ -630,9 +692,37 @@
         "Define retention and deletion rules for sensitive records.",
         "Think about permission checks as part of the data model, not as an afterthought."
       ],
+      "migrationPlaybook": {
+        "title": "API and data evolution",
+        "intro": "Senior answers usually mention how API versions or data models change safely instead of assuming clients and services all update together.",
+        "phases": [
+          {
+            "step": "1",
+            "title": "Add backward-compatible fields or endpoints",
+            "description": "Make the new shape available before removing the old shape."
+          },
+          {
+            "step": "2",
+            "title": "Move clients gradually",
+            "description": "Let consumers adopt the new contract in waves while tracking old-version usage."
+          },
+          {
+            "step": "3",
+            "title": "Retire the old path only after adoption",
+            "description": "Deprecate and remove older behavior only after the migration is proven."
+          }
+        ],
+        "risks": [
+          "Hidden clients still using old APIs",
+          "Old and new data models diverging in behavior",
+          "Deletion or retention rules being different across versions"
+        ],
+        "closing": "A strong API answer includes both the contract and the evolution path."
+      },
       "relatedTopics": [
         { "category": "components", "id": "api-gateway", "title": "API Gateway and Proxy" },
-        { "category": "case-studies", "id": "chat-system", "title": "Design a Chat System" }
+        { "category": "case-studies", "id": "chat-system", "title": "Design a Chat System" },
+        { "category": "production-depth", "id": "data-retention-deletion-and-compliance", "title": "Data Retention, Deletion, and Compliance" }
       ],
       "sections": [
         {
@@ -750,9 +840,60 @@
         "Separate cost bottlenecks from latency bottlenecks.",
         "Explain the operational burden of the next scaling step."
       ],
+      "sloPack": {
+        "title": "How senior trade-offs sound",
+        "intro": "Near the end of a design interview, senior answers often tie bottlenecks back to reliability targets and cost limits instead of discussing only raw scale.",
+        "indicators": [
+          "Latency on the hottest user path",
+          "Correctness mismatch or stale-read rate on sensitive paths",
+          "Queue lag or backlog on asynchronous paths"
+        ],
+        "targets": [
+          "Keep the critical path within the user expectation",
+          "Do not burn the error budget with risky rollout choices",
+          "Keep recovery time within the business tolerance"
+        ],
+        "errorBudgetPolicies": [
+          "Delay risky optimizations if reliability is already degraded",
+          "Prefer simpler mitigations when the system is unstable",
+          "Use observability to choose the next fix instead of guessing"
+        ],
+        "interviewMoves": [
+          "Name the hottest bottleneck first",
+          "Say what metric proves the bottleneck is real",
+          "Explain the operational cost of the next optimization"
+        ],
+        "closing": "Senior trade-off discussion sounds measured: bottleneck, proof, next move, and new cost."
+      },
+      "costModel": {
+        "title": "Trade-off cost framing",
+        "intro": "One good senior habit is separating latency gains from cost growth and from operational burden.",
+        "costDrivers": [
+          "More always-on infra after scaling",
+          "Extra invalidation and coordination overhead",
+          "Team time needed to operate the new layer"
+        ],
+        "capacityChecks": [
+          "Which path breaks first at 10x",
+          "Which fix buys the most headroom now",
+          "Which change adds the biggest blast radius"
+        ],
+        "optimizationLevers": [
+          "Fix the hottest path first",
+          "Add complexity only where it clearly earns its keep",
+          "Measure before optimizing"
+        ],
+        "whenToSpendMore": [
+          "Critical revenue or trust-sensitive paths",
+          "Known peak or regional risks",
+          "Places where simpler infrastructure is already clearly exhausted"
+        ],
+        "closing": "The strongest endings combine bottleneck reasoning with reliability and cost discipline."
+      },
       "relatedTopics": [
         { "category": "fundamentals", "id": "partitioning", "title": "Partitioning and Sharding" },
-        { "category": "components", "id": "cache", "title": "Cache" }
+        { "category": "components", "id": "cache", "title": "Cache" },
+        { "category": "production-depth", "id": "sli-slo-sla-error-budgets", "title": "SLIs, SLOs, SLAs, and Error Budgets" }
       ],
       "sections": [
         {

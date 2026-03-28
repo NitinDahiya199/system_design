@@ -35,9 +35,19 @@
         "Ignoring abuse, spam, or malicious URL control.",
         "Forgetting that the redirect path is the hottest path."
       ],
+      "abuseFraudNotes": [
+        "Short-link products need malware, spam, and phishing controls as much as raw redirect scale.",
+        "Use reputation checks, suspicious-domain review, and per-account creation limits for abuse-heavy paths.",
+        "Analytics and abuse scoring can be asynchronous so the redirect path stays fast."
+      ],
+      "tenantIsolationNotes": [
+        "If this becomes a B2B link platform, large marketing tenants may need separate quotas and analytics partitions.",
+        "Per-tenant rate limits help one customer campaign avoid degrading everyone else."
+      ],
       "relatedTopics": [
         { "category": "components", "id": "cache", "title": "Cache" },
-        { "category": "fundamentals", "id": "latency-throughput", "title": "Latency and Throughput" }
+        { "category": "fundamentals", "id": "latency-throughput", "title": "Latency and Throughput" },
+        { "category": "production-depth", "id": "fraud-abuse-and-trust-safety", "title": "Fraud, Abuse, and Trust Safety" }
       ],
       "sections": [
         {
@@ -95,9 +105,37 @@
         "Forgetting push notifications for inactive clients.",
         "Saying messages are always delivered exactly once without explaining how."
       ],
+      "migrationPlaybook": {
+        "title": "Message-store evolution",
+        "intro": "Large chat systems usually outgrow their first message layout, so it helps to explain how history or conversation partitions can move safely.",
+        "phases": [
+          {
+            "step": "1",
+            "title": "Version message records",
+            "description": "Add new schema or storage layout without breaking old readers."
+          },
+          {
+            "step": "2",
+            "title": "Backfill or replay carefully",
+            "description": "Move history in batches while keeping live delivery separate from migration load."
+          },
+          {
+            "step": "3",
+            "title": "Cut reads over by conversation or region",
+            "description": "Shift traffic gradually and verify ordering and sync behavior."
+          }
+        ],
+        "risks": [
+          "Out-of-order history during migration",
+          "Sync bugs across multiple devices",
+          "Backfill load hurting live delivery latency"
+        ],
+        "closing": "Messaging migrations should protect order and sync guarantees before they protect elegance."
+      },
       "relatedTopics": [
         { "category": "components", "id": "queue", "title": "Queue" },
-        { "category": "interview-prep", "id": "apis-and-data", "title": "APIs and Data Design" }
+        { "category": "interview-prep", "id": "apis-and-data", "title": "APIs and Data Design" },
+        { "category": "production-depth", "id": "time-ordering-and-clock-skew", "title": "Time, Ordering, and Clock Skew" }
       ],
       "sections": [
         {
@@ -121,6 +159,17 @@
             "One-to-one or group?",
             "Online presence required?",
             "How much history must be stored?"
+          ]
+        },
+        {
+          "title": "Ordering and sync reality",
+          "paragraphs": [
+            "Senior answers should say whether ordering is per conversation, how reconnect recovery works, and what happens when delayed or duplicate events arrive."
+          ],
+          "bullets": [
+            "Use sequence numbers or version checks.",
+            "Recover missed messages after reconnect.",
+            "Treat duplicate delivery as normal, not rare."
           ]
         }
       ]
@@ -202,9 +251,20 @@
         "Treating every endpoint the same even when abuse patterns differ.",
         "Using a slow database lookup on every request."
       ],
+      "tenantIsolationNotes": [
+        "Large tenants or API plans may need separate quotas from free-tier traffic.",
+        "Global products often need different limits for auth, search, and write-heavy APIs.",
+        "Fairness matters as much as raw protection."
+      ],
+      "abuseFraudNotes": [
+        "Rate limiting should separate abuse from real fraud, because fraud may stay under simple volume thresholds.",
+        "High-risk actions may need account reputation or step-up checks, not only counters.",
+        "Blocklists and behavioral signals often work together with rate limits."
+      ],
       "relatedTopics": [
         { "category": "components", "id": "api-gateway", "title": "API Gateway and Proxy" },
-        { "category": "components", "id": "cache", "title": "Cache" }
+        { "category": "components", "id": "cache", "title": "Cache" },
+        { "category": "production-depth", "id": "fraud-abuse-and-trust-safety", "title": "Fraud, Abuse, and Trust Safety" }
       ],
       "sections": [
         {
@@ -404,9 +464,41 @@
         "Ignoring version history.",
         "Skipping conflict resolution for offline edits."
       ],
+      "migrationPlaybook": {
+        "title": "Storage and metadata migration",
+        "intro": "File systems often need metadata or chunk-layout changes long after the product launches.",
+        "phases": [
+          {
+            "step": "1",
+            "title": "Version metadata first",
+            "description": "Keep enough metadata to know which chunk or version layout each file uses."
+          },
+          {
+            "step": "2",
+            "title": "Move low-risk files gradually",
+            "description": "Backfill old files in batches while protecting the live sync path."
+          },
+          {
+            "step": "3",
+            "title": "Cut sync and download traffic over",
+            "description": "Move readers and sync workers only after integrity and permission checks pass."
+          }
+        ],
+        "risks": [
+          "Broken version pointers",
+          "Permission mismatches after migration",
+          "Backfill load hurting sync latency"
+        ],
+        "closing": "Storage migrations sound senior when you explain how the system changes without breaking existing files."
+      },
+      "securityPrivacyNotes": [
+        "Retention and deletion rules should cover file content, metadata, thumbnails, caches, and indexes together.",
+        "Sensitive shared files may need stronger audit logging and export controls."
+      ],
       "relatedTopics": [
         { "category": "fundamentals", "id": "consistency", "title": "Consistency" },
-        { "category": "interview-prep", "id": "high-level-design", "title": "High-level Design" }
+        { "category": "interview-prep", "id": "high-level-design", "title": "High-level Design" },
+        { "category": "production-depth", "id": "data-retention-deletion-and-compliance", "title": "Data Retention, Deletion, and Compliance" }
       ],
       "sections": [
         {
@@ -539,7 +631,8 @@
       ],
       "relatedTopics": [
         { "category": "components", "id": "cdn", "title": "CDN" },
-        { "category": "components", "id": "object-storage", "title": "Object Storage" }
+        { "category": "components", "id": "object-storage", "title": "Object Storage" },
+        { "category": "production-depth", "id": "safe-deployments-and-rollouts", "title": "Safe Deployments and Rollouts" }
       ],
       "sections": [
         {
@@ -626,7 +719,59 @@
       "observabilityNotes": [
         "Track startup time, rebuffering, CDN hit rate, manifest latency, and error rate by region.",
         "Use playback quality metrics, not only request counts, to judge user experience."
-      ]
+      ],
+      "migrationPlaybook": {
+        "title": "Playback rollout playbook",
+        "intro": "Streaming systems often release manifest changes, player behavior changes, or encoding changes gradually because the blast radius is large.",
+        "phases": [
+          {
+            "step": "1",
+            "title": "Canary one region or device group",
+            "description": "Start with a small slice so playback regressions are visible early."
+          },
+          {
+            "step": "2",
+            "title": "Compare startup and rebuffer metrics",
+            "description": "Use user-experience metrics, not only server health, to judge the new path."
+          },
+          {
+            "step": "3",
+            "title": "Expand slowly and keep rollback ready",
+            "description": "Grow traffic only while edge and origin behavior stay healthy."
+          }
+        ],
+        "risks": [
+          "Healthy server metrics masking bad user playback",
+          "Regional cache warm-up issues",
+          "Encoding or manifest mismatches on specific device classes"
+        ],
+        "closing": "The senior move is protecting playback quality while the platform evolves."
+      },
+      "costModel": {
+        "title": "Streaming cost hotspots",
+        "intro": "Global video systems are often dominated by storage, transcoding, and bandwidth cost.",
+        "costDrivers": [
+          "Encoding and transcoding workload",
+          "CDN egress",
+          "Long-lived storage for many formats"
+        ],
+        "capacityChecks": [
+          "Peak regional demand",
+          "Edge-cache hit rate",
+          "Origin protection during misses"
+        ],
+        "optimizationLevers": [
+          "Choose the most valuable encodings first",
+          "Use CDN and cache placement intelligently",
+          "Protect origin from unnecessary misses"
+        ],
+        "whenToSpendMore": [
+          "Startup-time improvements on the hottest markets",
+          "Major live or launch events",
+          "Critical content-placement needs"
+        ],
+        "closing": "Senior streaming answers explain what the next playback improvement costs."
+      }
     },
     {
       "id": "whatsapp",
@@ -725,7 +870,8 @@
       ],
       "relatedTopics": [
         { "category": "components", "id": "websocket", "title": "WebSocket" },
-        { "category": "components", "id": "object-storage", "title": "Object Storage" }
+        { "category": "components", "id": "object-storage", "title": "Object Storage" },
+        { "category": "production-depth", "id": "time-ordering-and-clock-skew", "title": "Time, Ordering, and Clock Skew" }
       ],
       "sections": [
         {
@@ -773,6 +919,31 @@
       "securityPrivacyNotes": [
         "End-to-end encryption changes storage, search, and moderation options.",
         "Metadata privacy may still matter even when content is protected."
+      ],
+      "sections": [
+        {
+          "title": "Good interview structure",
+          "paragraphs": [
+            "Start with one-to-one text messages, then expand to groups, media, and multi-device sync only after the basic path is solid."
+          ],
+          "bullets": [
+            "One-to-one text first.",
+            "Then offline sync.",
+            "Then groups and media.",
+            "Then advanced features."
+          ]
+        },
+        {
+          "title": "Ordering and device sync",
+          "paragraphs": [
+            "Senior answers should explain whether order is per conversation, how duplicate delivery is handled, and how the system keeps multiple devices consistent after reconnect."
+          ],
+          "bullets": [
+            "Use per-chat ordering where needed.",
+            "Handle late or duplicate events safely.",
+            "Keep multi-device sync and media delivery as separate concerns."
+          ]
+        }
       ]
     },
     {
@@ -868,9 +1039,37 @@
         "How do you handle a failed chunk upload?",
         "What if two users edit offline and sync later?"
       ],
+      "migrationPlaybook": {
+        "title": "File-platform evolution",
+        "intro": "Drive-style systems often evolve metadata stores, sharing models, and sync pipelines independently.",
+        "phases": [
+          {
+            "step": "1",
+            "title": "Version metadata and permissions",
+            "description": "Keep enough schema information so old and new sharing models can both be understood."
+          },
+          {
+            "step": "2",
+            "title": "Migrate background sync safely",
+            "description": "Move sync workers or indexes in waves so active collaboration stays healthy."
+          },
+          {
+            "step": "3",
+            "title": "Retire old file views and paths",
+            "description": "Only remove old metadata or sharing behavior after all major clients are proven on the new path."
+          }
+        ],
+        "risks": [
+          "Broken permissions during migration",
+          "Stale indexes or file listings",
+          "Deletion rules not matching across stores"
+        ],
+        "closing": "Senior storage answers usually mention how metadata and permissions change safely over time."
+      },
       "relatedTopics": [
         { "category": "components", "id": "object-storage", "title": "Object Storage" },
-        { "category": "fundamentals", "id": "idempotency", "title": "Idempotency" }
+        { "category": "fundamentals", "id": "idempotency", "title": "Idempotency" },
+        { "category": "production-depth", "id": "data-retention-deletion-and-compliance", "title": "Data Retention, Deletion, and Compliance" }
       ],
       "sections": [
         {
@@ -1433,7 +1632,8 @@
       ],
       "relatedTopics": [
         { "category": "fundamentals", "id": "idempotency", "title": "Idempotency" },
-        { "category": "fundamentals", "id": "consistency", "title": "Consistency" }
+        { "category": "fundamentals", "id": "consistency", "title": "Consistency" },
+        { "category": "production-depth", "id": "sli-slo-sla-error-budgets", "title": "SLIs, SLOs, SLAs, and Error Budgets" }
       ],
       "sections": [
         {
@@ -1483,6 +1683,77 @@
         "Correctness, auditability, and reconciliation matter more than flashy scale vocabulary.",
         "Multi-region payments may need careful regional ownership and ledger consistency rules.",
         "Operational incident handling should be part of the design story."
+      ],
+      "sloPack": {
+        "title": "Payment reliability targets",
+        "intro": "Payments need both normal availability targets and correctness-sensitive indicators.",
+        "indicators": [
+          "Authorization success rate",
+          "Duplicate-charge rate",
+          "Reconciliation mismatch rate",
+          "P95 latency on the checkout critical path"
+        ],
+        "targets": [
+          "Very low duplicate-payment rate",
+          "Fast enough checkout response for user trust",
+          "Strict reconciliation targets for internal correctness"
+        ],
+        "errorBudgetPolicies": [
+          "Slow risky payment changes when correctness signals degrade",
+          "Prefer safe degradation over throughput during payment incidents",
+          "Use rollback or provider-routing changes quickly when processor quality drops"
+        ],
+        "interviewMoves": [
+          "Separate correctness from uptime",
+          "Name one user-facing and one correctness-facing metric",
+          "Explain how release decisions change when the budget is under pressure"
+        ],
+        "closing": "Payment systems sound senior when reliability includes money correctness, not only request success."
+      },
+      "incidentRunbook": {
+        "title": "Payment incident flow",
+        "intro": "Payment incidents are dangerous because wrong money movement can be worse than short downtime.",
+        "stages": [
+          {
+            "step": "1",
+            "title": "Stop risky actions",
+            "description": "Pause unsafe retries, route away from a bad provider, or freeze a risky payment path if correctness is uncertain."
+          },
+          {
+            "step": "2",
+            "title": "Protect correctness",
+            "description": "Check idempotency, duplicate-charge risk, and reconciliation state before resuming normal flow."
+          },
+          {
+            "step": "3",
+            "title": "Recover and reconcile",
+            "description": "Bring the payment flow back, then run reconciliation and customer-remediation steps if needed."
+          }
+        ],
+        "immediateActions": [
+          "Prefer correctness over raw throughput",
+          "Separate provider errors from internal state-machine errors",
+          "Use a manual or delayed review path when money state is uncertain"
+        ],
+        "communicationRules": [
+          "Be precise about money risk and user impact",
+          "Keep finance, support, and engineering aligned on status"
+        ],
+        "recoveryChecks": [
+          "Authorization and capture rates are healthy",
+          "Mismatch rate is falling",
+          "Duplicate detection is quiet"
+        ],
+        "postmortemActions": [
+          "Improve reconciliation alarms",
+          "Tighten rollout, provider-failover, or idempotency safeguards"
+        ],
+        "closing": "Senior payment thinking is calm, correctness-first incident handling."
+      },
+      "abuseFraudNotes": [
+        "Separate card fraud, account takeover, and traffic abuse because they need different defenses.",
+        "High-risk payments may need step-up checks, holds, or manual review, not just rate limits.",
+        "Fraud systems should feed back into risk scoring and provider-routing decisions."
       ],
       "multiRegionNotes": [
         "Regional payment rules and processor integrations may differ by geography.",
@@ -1592,7 +1863,8 @@
       ],
       "relatedTopics": [
         { "category": "components", "id": "pub-sub", "title": "Pub/Sub" },
-        { "category": "fundamentals", "id": "load-shedding", "title": "Load Shedding" }
+        { "category": "fundamentals", "id": "load-shedding", "title": "Load Shedding" },
+        { "category": "production-depth", "id": "multi-tenant-design-and-isolation", "title": "Multi-Tenant Design and Isolation" }
       ],
       "sections": [
         {
@@ -1640,7 +1912,38 @@
       "securityPrivacyNotes": [
         "Notification content can leak sensitive data, so templates and channel rules should be privacy-aware.",
         "Preference and opt-out records must be durable and respected across all delivery paths."
-      ]
+      ],
+      "tenantIsolationNotes": [
+        "Large tenants or premium tenants may need separate quotas and worker pools during spikes.",
+        "Priority rules should stop one tenant's campaign from blocking password resets or fraud alerts for others.",
+        "Per-tenant observability should show who is creating queue pressure."
+      ],
+      "sloPack": {
+        "title": "Notification reliability targets",
+        "intro": "Senior answers often separate urgent notifications from bulk engagement or marketing traffic.",
+        "indicators": [
+          "Queue lag by channel",
+          "Delivery success rate",
+          "Template or composition error rate",
+          "Urgent-notification latency"
+        ],
+        "targets": [
+          "Fast delivery for urgent transactional messages",
+          "Stronger tolerance for delay on low-priority bulk traffic",
+          "Low duplicate-send rate across retries"
+        ],
+        "errorBudgetPolicies": [
+          "Protect urgent notifications first during overload",
+          "Shed or delay low-priority campaigns when the budget is under pressure",
+          "Pause risky provider changes when delivery health is poor"
+        ],
+        "interviewMoves": [
+          "Separate channel-specific reliability",
+          "Use priority classes",
+          "Tie the target to user harm and product value"
+        ],
+        "closing": "Notification systems sound senior when they distinguish urgent delivery from bulk traffic."
+      }
     }
   ]
 }

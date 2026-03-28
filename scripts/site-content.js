@@ -13,7 +13,8 @@
       fundamentals: "fundamentals.html",
       components: "components.html",
       "interview-prep": "interview-prep.html",
-      "case-studies": "case-studies.html"
+      "case-studies": "case-studies.html",
+      "production-depth": "production-depth.html"
     }[category] || "fundamentals.html";
   }
 
