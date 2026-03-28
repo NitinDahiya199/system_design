@@ -88,9 +88,20 @@ document.addEventListener("DOMContentLoaded", async function () {
       { id: "interview-tip", title: "Interview tip", show: hasText(item.interviewTip) },
       { id: "estimation-walkthrough", title: "Estimation walkthrough", show: !!item.estimationWalkthrough },
       { id: "sample-answer", title: "Sample answer", show: !!item.sampleAnswer },
+      { id: "spoken-answer", title: "Sample spoken answer", show: !!item.spokenAnswer },
+      { id: "timed-prompts", title: "Timed practice", show: hasList(item.timedPrompts) },
+      { id: "mock-conversation", title: "Mock interview", show: hasList(item.mockConversation) },
+      { id: "answer-quality", title: "Answer quality levels", show: hasList(item.answerQualityLevels) },
+      { id: "answer-comparison", title: "Good vs weak answer", show: !!item.goodVsWeakAnswer },
+      { id: "failure-scenarios", title: "Failure scenarios", show: hasList(item.failureScenarios) },
+      { id: "debugging-checklist", title: "Debugging checklist", show: hasList(item.debuggingChecklist) },
       { id: "design-checklist", title: "Design checklist", show: hasList(item.designChecklist) },
       { id: "what-interviewer-expects", title: "What interviewer expects", show: hasList(item.whatInterviewerExpects) },
       { id: "follow-up-questions", title: "Follow-up questions", show: hasList(item.followUpQuestions) },
+      { id: "senior-considerations", title: "Senior-level considerations", show: hasList(item.seniorConsiderations) },
+      { id: "multi-region-notes", title: "Multi-region design", show: hasList(item.multiRegionNotes) },
+      { id: "observability-notes", title: "Observability", show: hasList(item.observabilityNotes) },
+      { id: "security-privacy-notes", title: "Security and privacy", show: hasList(item.securityPrivacyNotes) },
       { id: "trade-offs", title: "Trade-offs", show: hasList(item.tradeOffs) },
       { id: "mistakes", title: "Common mistakes", show: hasList(item.commonMistakes) },
       { id: "related", title: "Related topics", show: hasList(item.relatedTopics) }
@@ -125,9 +136,20 @@ document.addEventListener("DOMContentLoaded", async function () {
         sectionBlock("interview-tip", "In interviews, say this", [item.interviewTip]) +
         estimationBlock(item.estimationWalkthrough) +
         sampleAnswerBlock(item.sampleAnswer) +
+        spokenAnswerBlock(item.spokenAnswer) +
+        timedPromptsBlock(item.timedPrompts) +
+        mockConversationBlock(item.mockConversation) +
+        answerQualityBlock(item.answerQualityLevels) +
+        answerComparisonBlock(item.goodVsWeakAnswer) +
+        failureScenariosBlock(item.failureScenarios) +
+        listPanelBlock("debugging-checklist", "Debugging checklist", item.debuggingChecklist) +
         listPanelBlock("design-checklist", "Design checklist", item.designChecklist) +
         listPanelBlock("what-interviewer-expects", "What interviewer expects", item.whatInterviewerExpects) +
         listPanelBlock("follow-up-questions", "Common follow-up questions", item.followUpQuestions) +
+        listPanelBlock("senior-considerations", "Senior-level considerations", item.seniorConsiderations) +
+        listPanelBlock("multi-region-notes", "Multi-region design", item.multiRegionNotes) +
+        listPanelBlock("observability-notes", "Observability and debugging signals", item.observabilityNotes) +
+        listPanelBlock("security-privacy-notes", "Security and privacy decisions", item.securityPrivacyNotes) +
         sectionBlock("trade-offs", "Trade-offs", [], item.tradeOffs) +
         sectionBlock("mistakes", "Common mistakes", [], item.commonMistakes) +
         (item.sections || [])
@@ -137,6 +159,8 @@ document.addEventListener("DOMContentLoaded", async function () {
           .join("") +
         relatedBlock(item.relatedTopics);
     }
+
+    setupSectionNav(sectionNav);
   }
 
   function sectionBlock(id, title, paragraphs, bullets, bulletsTitle) {
@@ -316,6 +340,172 @@ document.addEventListener("DOMContentLoaded", async function () {
     );
   }
 
+  function spokenAnswerBlock(spokenAnswer) {
+    if (!spokenAnswer) {
+      return "";
+    }
+
+    return (
+      '<section class="detail-section panel" id="spoken-answer">' +
+      "<h2>" + helper.escapeHtml(spokenAnswer.title || "Sample spoken answer") + "</h2>" +
+      '<div class="spoken-answer-block">' +
+      (spokenAnswer.paragraphs || [])
+        .map(function (paragraph) {
+          return '<p class="spoken-answer-line">' + helper.escapeHtml(paragraph) + "</p>";
+        })
+        .join("") +
+      "</div>" +
+      "</section>"
+    );
+  }
+
+  function timedPromptsBlock(timedPrompts) {
+    if (!hasList(timedPrompts)) {
+      return "";
+    }
+
+    return (
+      '<section class="detail-section panel" id="timed-prompts">' +
+      "<h2>Timed practice prompts</h2>" +
+      '<div class="timed-prompt-grid">' +
+      timedPrompts
+        .map(function (prompt) {
+          return (
+            '<article class="timed-prompt-card">' +
+            '<div class="timed-header">' +
+            "<h3>" + helper.escapeHtml(prompt.title) + "</h3>" +
+            '<span class="time-badge">' + helper.escapeHtml(prompt.timeBox || "Timed") + "</span>" +
+            "</div>" +
+            (hasText(prompt.goal) ? '<p class="muted">' + helper.escapeHtml(prompt.goal) + "</p>" : "") +
+            (hasText(prompt.prompt) ? "<p>" + helper.escapeHtml(prompt.prompt) + "</p>" : "") +
+            (hasList(prompt.checkpoints)
+              ? '<ul class="check-list">' +
+                prompt.checkpoints
+                  .map(function (point) {
+                    return "<li>" + helper.escapeHtml(point) + "</li>";
+                  })
+                  .join("") +
+                "</ul>"
+              : "") +
+            "</article>"
+          );
+        })
+        .join("") +
+      "</div>" +
+      "</section>"
+    );
+  }
+
+  function mockConversationBlock(mockConversation) {
+    if (!hasList(mockConversation)) {
+      return "";
+    }
+
+    return (
+      '<section class="detail-section panel" id="mock-conversation">' +
+      "<h2>Mock interview conversation</h2>" +
+      '<div class="conversation-thread">' +
+      mockConversation
+        .map(function (entry) {
+          return (
+            '<article class="conversation-line">' +
+            '<span class="speaker-badge">' + helper.escapeHtml(entry.speaker) + "</span>" +
+            "<p>" + helper.escapeHtml(entry.text) + "</p>" +
+            "</article>"
+          );
+        })
+        .join("") +
+      "</div>" +
+      "</section>"
+    );
+  }
+
+  function answerQualityBlock(answerQualityLevels) {
+    if (!hasList(answerQualityLevels)) {
+      return "";
+    }
+
+    return (
+      '<section class="detail-section panel" id="answer-quality">' +
+      "<h2>Expected answer quality</h2>" +
+      '<div class="quality-grid">' +
+      answerQualityLevels
+        .map(function (level) {
+          return (
+            '<article class="quality-card">' +
+            '<span class="quality-badge quality-' + helper.escapeHtml((level.level || "").toLowerCase()) + '">' + helper.escapeHtml(level.level) + "</span>" +
+            "<p>" + helper.escapeHtml(level.summary) + "</p>" +
+            (hasList(level.traits)
+              ? '<ul class="check-list">' +
+                level.traits
+                  .map(function (trait) {
+                    return "<li>" + helper.escapeHtml(trait) + "</li>";
+                  })
+                  .join("") +
+                "</ul>"
+              : "") +
+            "</article>"
+          );
+        })
+        .join("") +
+      "</div>" +
+      "</section>"
+    );
+  }
+
+  function answerComparisonBlock(goodVsWeakAnswer) {
+    if (!goodVsWeakAnswer) {
+      return "";
+    }
+
+    return (
+      '<section class="detail-section panel" id="answer-comparison">' +
+      "<h2>Good answer vs weak answer</h2>" +
+      (hasText(goodVsWeakAnswer.question) ? "<p>" + helper.escapeHtml(goodVsWeakAnswer.question) + "</p>" : "") +
+      '<div class="comparison-grid">' +
+      '<article class="comparison-card weak-answer">' +
+      "<h3>Weak answer</h3>" +
+      "<p>" + helper.escapeHtml(goodVsWeakAnswer.weakAnswer || "") + "</p>" +
+      "</article>" +
+      '<article class="comparison-card good-answer">' +
+      "<h3>Good answer</h3>" +
+      "<p>" + helper.escapeHtml(goodVsWeakAnswer.goodAnswer || "") + "</p>" +
+      "</article>" +
+      "</div>" +
+      (hasText(goodVsWeakAnswer.whyGoodWorks)
+        ? '<p class="takeaway-note">' + helper.escapeHtml(goodVsWeakAnswer.whyGoodWorks) + "</p>"
+        : "") +
+      "</section>"
+    );
+  }
+
+  function failureScenariosBlock(failureScenarios) {
+    if (!hasList(failureScenarios)) {
+      return "";
+    }
+
+    return (
+      '<section class="detail-section panel" id="failure-scenarios">' +
+      "<h2>Failure and debugging scenarios</h2>" +
+      '<div class="failure-grid">' +
+      failureScenarios
+        .map(function (scenario) {
+          return (
+            '<article class="failure-card">' +
+            "<h3>" + helper.escapeHtml(scenario.title) + "</h3>" +
+            (hasText(scenario.issue) ? "<p>" + helper.escapeHtml(scenario.issue) + "</p>" : "") +
+            (hasText(scenario.strongResponse)
+              ? '<p class="muted"><strong>Strong response:</strong> ' + helper.escapeHtml(scenario.strongResponse) + "</p>"
+              : "") +
+            "</article>"
+          );
+        })
+        .join("") +
+      "</div>" +
+      "</section>"
+    );
+  }
+
   function listCard(title, items) {
     if (!hasList(items)) {
       return "";
@@ -433,6 +623,66 @@ document.addEventListener("DOMContentLoaded", async function () {
 
   function hasText(value) {
     return typeof value === "string" && value.trim().length > 0;
+  }
+
+  function setupSectionNav(sectionNav) {
+    if (!sectionNav) {
+      return;
+    }
+
+    const navLinks = Array.from(sectionNav.querySelectorAll('a[href^="#"]'));
+    if (!navLinks.length) {
+      return;
+    }
+
+    const sections = navLinks
+      .map(function (link) {
+        const id = (link.getAttribute("href") || "").slice(1);
+        const section = id ? document.getElementById(id) : null;
+
+        link.addEventListener("click", function () {
+          setActiveLink(id);
+        });
+
+        return section;
+      })
+      .filter(Boolean);
+
+    if (!sections.length) {
+      return;
+    }
+
+    function setActiveLink(activeId) {
+      navLinks.forEach(function (link) {
+        const isActive = link.getAttribute("href") === "#" + activeId;
+        link.classList.toggle("is-active", isActive);
+
+        if (isActive) {
+          link.setAttribute("aria-current", "location");
+        } else {
+          link.removeAttribute("aria-current");
+        }
+      });
+    }
+
+    function updateActiveLink() {
+      const offset = 150;
+      let currentSection = sections[0];
+
+      sections.forEach(function (section) {
+        if (section.getBoundingClientRect().top <= offset) {
+          currentSection = section;
+        }
+      });
+
+      if (currentSection) {
+        setActiveLink(currentSection.id);
+      }
+    }
+
+    updateActiveLink();
+    window.addEventListener("scroll", updateActiveLink, { passive: true });
+    window.addEventListener("resize", updateActiveLink);
   }
 
   function renderMissingState(categoryValue) {

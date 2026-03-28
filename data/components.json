@@ -320,6 +320,23 @@
         "Ignoring indexes and query patterns.",
         "Choosing one database for every kind of data."
       ],
+      "seniorConsiderations": [
+        "The best storage design often uses more than one storage type, but only when the complexity is justified.",
+        "Data ownership between services should stay clear so schemas do not become tangled.",
+        "Production storage choices should consider migration and operational maturity, not just ideal theory."
+      ],
+      "multiRegionNotes": [
+        "Relational and document stores behave very differently once you add cross-region replication.",
+        "Some systems keep write ownership regional to reduce cross-region conflict cost."
+      ],
+      "observabilityNotes": [
+        "Track slow queries, index hit rate, replica lag, and error rate by query type.",
+        "Watch how schema changes affect read and write latency over time."
+      ],
+      "securityPrivacyNotes": [
+        "Choose storage with retention, encryption, and audit needs in mind.",
+        "Sensitive columns may need stronger access controls than the rest of the dataset."
+      ],
       "relatedTopics": [
         { "category": "interview-prep", "id": "apis-and-data", "title": "APIs and Data Design" },
         { "category": "fundamentals", "id": "partitioning", "title": "Partitioning and Sharding" }
@@ -367,6 +384,27 @@
         "Treating search like a simple SQL LIKE query at large scale.",
         "Ignoring indexing lag.",
         "Forgetting filters, sorting, and typo tolerance."
+      ],
+      "failureScenarios": [
+        {
+          "title": "Search results are stale after product updates",
+          "issue": "The main database is correct, but search still shows old data.",
+          "strongResponse": "Check the indexing pipeline, event lag, failed consumers, and reindex strategy before blaming the search engine itself."
+        }
+      ],
+      "debuggingChecklist": [
+        "Indexing lag",
+        "Failed indexing jobs",
+        "Ranking changes",
+        "Search cluster saturation"
+      ],
+      "seniorConsiderations": [
+        "Search quality depends on indexing freshness, ranking strategy, and operational recovery tooling.",
+        "At scale, you need to think about reindexing and schema evolution, not just search queries."
+      ],
+      "observabilityNotes": [
+        "Track indexing delay, query latency, zero-result rate, and ranking-quality signals.",
+        "Separate source-of-truth correctness issues from search-index freshness issues."
       ],
       "relatedTopics": [
         { "category": "components", "id": "queue", "title": "Queue" },
@@ -463,6 +501,28 @@
         "Ignoring poison messages and dead-letter handling.",
         "Assuming exactly-once delivery is easy."
       ],
+      "failureScenarios": [
+        {
+          "title": "Consumers fall behind during a traffic spike",
+          "issue": "Messages pile up faster than consumers can process them.",
+          "strongResponse": "Discuss backpressure, consumer scaling, priority handling, and whether some work can be dropped or delayed safely."
+        }
+      ],
+      "debuggingChecklist": [
+        "Queue depth",
+        "Consumer lag",
+        "Retry rate",
+        "Dead-letter volume"
+      ],
+      "seniorConsiderations": [
+        "At scale, backpressure strategy matters as much as basic delivery.",
+        "Message schemas need versioning and clear ownership.",
+        "Broker retention choices affect replay, cost, and debugging power."
+      ],
+      "observabilityNotes": [
+        "Track producer rate, consumer lag, dead-letter growth, and redelivery counts.",
+        "Alert on sustained lag before it reaches user-facing impact."
+      ],
       "relatedTopics": [
         { "category": "components", "id": "queue", "title": "Queue" },
         { "category": "components", "id": "pub-sub", "title": "Pub/Sub" }
@@ -510,6 +570,15 @@
         "Calling every async system pub/sub when it is really point-to-point queueing.",
         "Ignoring duplicate or late events.",
         "Not planning for event schema changes."
+      ],
+      "seniorConsiderations": [
+        "Pub/Sub systems need clear event contracts and consumer ownership rules.",
+        "Fan-out can amplify bad events very quickly, so validation and replay tooling matter.",
+        "Tracing events through many subscribers becomes an observability problem, not only a delivery problem."
+      ],
+      "observabilityNotes": [
+        "Track per-topic publish rate, subscriber lag, and dropped or failed event processing.",
+        "Use event tracing to see where fan-out chains become slow or fail."
       ],
       "relatedTopics": [
         { "category": "components", "id": "message-broker", "title": "Message Broker" },
@@ -559,6 +628,28 @@
         "Ignoring reconnect and missed-message recovery.",
         "Assuming one server can handle unlimited open connections."
       ],
+      "failureScenarios": [
+        {
+          "title": "Connection storm after a network glitch",
+          "issue": "Large numbers of clients reconnect at the same time after a brief outage.",
+          "strongResponse": "Use reconnect backoff, load balancing, and session recovery logic so the reconnect wave does not overload the system."
+        }
+      ],
+      "debuggingChecklist": [
+        "Active connection count",
+        "Reconnect rate",
+        "Gateway CPU and memory",
+        "Dropped connection reasons"
+      ],
+      "seniorConsiderations": [
+        "Open-connection scale affects infrastructure shape and failure handling.",
+        "Realtime systems need a clean recovery story for missed updates.",
+        "Connection-heavy systems often need load balancing, session affinity, and strong gateway observability."
+      ],
+      "observabilityNotes": [
+        "Track connection count, reconnect spikes, send latency, and dropped delivery events.",
+        "Watch for one gateway becoming hot after uneven balancing."
+      ],
       "relatedTopics": [
         { "category": "case-studies", "id": "chat-system", "title": "Design a Chat System" },
         { "category": "case-studies", "id": "zoom", "title": "Design Zoom" }
@@ -607,6 +698,17 @@
         "Using slow persistent storage for every check.",
         "Applying the same limits to every endpoint."
       ],
+      "goodVsWeakAnswer": {
+        "question": "What is a strong rate-limiting explanation?",
+        "weakAnswer": "I would use Redis to rate limit the API.",
+        "goodAnswer": "I would define the identity key first, choose whether bursts are allowed, place the limiter near the edge, and use a fast counter store so checks stay cheap and consistent enough for the use case.",
+        "whyGoodWorks": "The stronger answer explains the design decisions around the tool instead of naming the tool only."
+      },
+      "seniorConsiderations": [
+        "Rate limiting is a product and abuse-control decision, not just an infra feature.",
+        "Different endpoints may need different identities, limits, and burst behavior.",
+        "Overload policies should work together with backpressure and priority rules."
+      ],
       "relatedTopics": [
         { "category": "case-studies", "id": "rate-limiter", "title": "Design a Rate Limiter" },
         { "category": "components", "id": "api-gateway", "title": "API Gateway and Proxy" }
@@ -654,6 +756,29 @@
         "Mixing authentication and authorization as if they are the same thing.",
         "Ignoring session expiration and logout behavior.",
         "Forgetting CSRF, token leakage, or refresh token misuse."
+      ],
+      "failureScenarios": [
+        {
+          "title": "Token leakage incident",
+          "issue": "A session token is exposed in logs or client storage.",
+          "strongResponse": "Revoke affected tokens, rotate secrets if needed, audit access, and review storage and transport protections."
+        }
+      ],
+      "debuggingChecklist": [
+        "Login failure rates",
+        "Token refresh error rates",
+        "Session revocation behavior",
+        "Unexpected permission-denied spikes"
+      ],
+      "seniorConsiderations": [
+        "Auth design affects product safety, abuse handling, and incident response.",
+        "Session strategy should match client type, revocation needs, and risk level.",
+        "Permission checks and audit needs matter as much as the login flow itself."
+      ],
+      "securityPrivacyNotes": [
+        "Protect tokens in transport and storage.",
+        "Use strong expiry and revocation strategy for risky sessions.",
+        "Audit who accessed sensitive actions and when."
       ],
       "relatedTopics": [
         { "category": "components", "id": "api-gateway", "title": "API Gateway and Proxy" },

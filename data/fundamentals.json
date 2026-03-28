@@ -152,6 +152,25 @@
         "Saying eventual consistency is always okay because it scales better.",
         "Ignoring what users see during replication lag."
       ],
+      "goodVsWeakAnswer": {
+        "question": "How should you talk about consistency in an interview?",
+        "weakAnswer": "I would use eventual consistency because it scales better.",
+        "goodAnswer": "I would choose the consistency model based on user harm. For balances and payments, I would prefer stronger guarantees. For likes and feed counters, brief staleness may be acceptable.",
+        "whyGoodWorks": "The stronger answer ties the decision to product correctness instead of buzzwords."
+      },
+      "seniorConsiderations": [
+        "Different features in the same product may need different consistency levels.",
+        "Read-after-write expectations should be called out explicitly.",
+        "Replica lag and conflict resolution should be discussed in production terms."
+      ],
+      "multiRegionNotes": [
+        "Cross-region replication can improve resilience, but increases write latency and conflict handling complexity.",
+        "Some data may stay regional while user-facing summaries are eventually synced globally."
+      ],
+      "observabilityNotes": [
+        "Track replica lag, stale-read complaints, and conflicting-write incidents.",
+        "Measure how often user flows are blocked by stronger consistency choices."
+      ],
       "relatedTopics": [
         { "category": "fundamentals", "id": "availability", "title": "Availability" },
         { "category": "case-studies", "id": "dropbox", "title": "Design Dropbox" }
@@ -278,6 +297,32 @@
         "Can users read from replicas right after a write?",
         "How would you replicate across regions?"
       ],
+      "timedPrompts": [
+        {
+          "title": "Prompt 1",
+          "timeBox": "2 minutes",
+          "goal": "Practice clear production reasoning.",
+          "prompt": "Explain replication choices for a global ecommerce catalog.",
+          "checkpoints": [
+            "Say why replicas exist.",
+            "Mention read scaling and failover.",
+            "Call out replica lag."
+          ]
+        }
+      ],
+      "seniorConsiderations": [
+        "Replication strategy should match the write path and failure model.",
+        "Failover plans are not complete without safe promotion and recovery steps.",
+        "Replication does not remove the need for backup and recovery planning."
+      ],
+      "multiRegionNotes": [
+        "Global replication reduces distance to users, but cross-region writes may need clear ownership rules.",
+        "Some systems use one write region per entity to reduce conflict complexity."
+      ],
+      "observabilityNotes": [
+        "Track replication lag, failed replication events, and failover recovery time.",
+        "Alert when read traffic is hitting stale replicas on sensitive paths."
+      ],
       "relatedTopics": [
         { "category": "components", "id": "database-replica", "title": "Database Replica" },
         { "category": "fundamentals", "id": "consistency", "title": "Consistency" }
@@ -335,6 +380,17 @@
         "Would you choose the same CAP trade-off for payments and likes?",
         "How would you explain replica lag to users?"
       ],
+      "goodVsWeakAnswer": {
+        "question": "What is a strong CAP explanation?",
+        "weakAnswer": "CAP means you can only choose two out of three things.",
+        "goodAnswer": "CAP becomes relevant during network partitions. In that moment, the system usually chooses whether to prefer stronger consistency or keep serving requests with temporary data differences.",
+        "whyGoodWorks": "The stronger answer explains when CAP matters and how it affects product behavior."
+      },
+      "seniorConsiderations": [
+        "CAP choices can differ by feature inside one product.",
+        "Production systems often mix synchronous and asynchronous paths to balance user experience and correctness.",
+        "Partition behavior should be explained in terms of user-visible consequences."
+      ],
       "relatedTopics": [
         { "category": "fundamentals", "id": "availability", "title": "Availability" },
         { "category": "fundamentals", "id": "consistency", "title": "Consistency" }
@@ -381,6 +437,17 @@
         "Assuming horizontal scaling is always the right first step.",
         "Ignoring the cost and complexity of spreading state.",
         "Forgetting that some systems can scale one layer horizontally but not another."
+      ],
+      "goodVsWeakAnswer": {
+        "question": "How should you compare vertical and horizontal scaling?",
+        "weakAnswer": "Horizontal scaling is better because big companies use it.",
+        "goodAnswer": "Vertical scaling is often the simpler early move, but it has hard limits. Horizontal scaling is stronger for growth and resilience, but adds load balancing and distributed state complexity.",
+        "whyGoodWorks": "The stronger answer shows trade-offs, timing, and practical evolution."
+      },
+      "seniorConsiderations": [
+        "A mature design often scales different layers differently.",
+        "Stateless services are easier to scale horizontally than stateful storage layers.",
+        "Operational complexity should rise only when the scale actually demands it."
       ],
       "relatedTopics": [
         { "category": "components", "id": "load-balancer", "title": "Load Balancer" },
@@ -486,6 +553,28 @@
         "Which failures should trigger retries and which should not?",
         "How would you isolate one noisy service from the rest?"
       ],
+      "failureScenarios": [
+        {
+          "title": "Retry storm during an outage",
+          "issue": "Clients and services all retry at once after a dependency slows down.",
+          "strongResponse": "Use timeouts, backoff, circuit breakers, and request priority so recovery is possible instead of making overload worse."
+        }
+      ],
+      "debuggingChecklist": [
+        "Check timeout rates",
+        "Check retry volume",
+        "Check dependency latency",
+        "Check queue buildup or dropped work"
+      ],
+      "seniorConsiderations": [
+        "Fault tolerance is as much about isolation and recovery as it is about retries.",
+        "Graceful degradation matters when a full fallback is not possible.",
+        "Backpressure and overload control are core parts of reliability at scale."
+      ],
+      "observabilityNotes": [
+        "Track latency percentiles, retry counts, timeout rates, and circuit-breaker trips.",
+        "Watch for cascading failures caused by one slow dependency."
+      ],
       "relatedTopics": [
         { "category": "fundamentals", "id": "availability", "title": "Availability" },
         { "category": "components", "id": "queue", "title": "Queue" }
@@ -543,6 +632,27 @@
         "How long would you store idempotency keys?",
         "Would you use the same design for payments and notifications?",
         "What if the first request succeeded but the response was lost?"
+      ],
+      "timedPrompts": [
+        {
+          "title": "Prompt 1",
+          "timeBox": "2 minutes",
+          "goal": "Practice explaining safe retries.",
+          "prompt": "Explain how you would protect a payment API from duplicate charges during retries.",
+          "checkpoints": [
+            "Mention idempotency keys.",
+            "Mention durable request tracking.",
+            "Explain lost responses and safe replay."
+          ]
+        }
+      ],
+      "securityPrivacyNotes": [
+        "Idempotency keys should not leak sensitive meaning or be easy to guess.",
+        "Stored request records should follow retention and privacy rules."
+      ],
+      "seniorConsiderations": [
+        "Idempotency becomes more important when external dependencies are slow or unreliable.",
+        "It should be part of the API contract, not only an internal patch."
       ],
       "relatedTopics": [
         { "category": "fundamentals", "id": "fault-tolerance", "title": "Fault Tolerance" },

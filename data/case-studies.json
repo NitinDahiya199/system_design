@@ -278,6 +278,53 @@
             "Track watch events asynchronously."
           ]
         }
+      ],
+      "timedPrompts": [
+        {
+          "title": "Prompt 1",
+          "timeBox": "8 minutes",
+          "goal": "Practice a clean answer split.",
+          "prompt": "Design YouTube and separate upload from playback clearly.",
+          "checkpoints": [
+            "Start with upload path and processing.",
+            "Then explain playback and CDN delivery.",
+            "Mention metadata, search, and analytics only after the core flow."
+          ]
+        }
+      ],
+      "mockConversation": [
+        {
+          "speaker": "Interviewer",
+          "text": "Why are you separating upload and playback?"
+        },
+        {
+          "speaker": "Candidate",
+          "text": "Because upload is a write-heavy processing path, while playback is a global read-heavy path with very different bottlenecks."
+        }
+      ],
+      "failureScenarios": [
+        {
+          "title": "Transcoding backlog grows quickly",
+          "issue": "Uploads succeed, but processed formats take too long to appear.",
+          "strongResponse": "Check queue backlog, worker saturation, job priority, and whether lower-priority formats can be delayed to protect core playback readiness."
+        }
+      ],
+      "seniorConsiderations": [
+        "Multi-region playback needs clear content placement and cache warm-up strategy.",
+        "Backpressure is important when uploads and processing spikes happen together.",
+        "Observability should separate upload failure, processing lag, and playback startup issues."
+      ],
+      "multiRegionNotes": [
+        "Store and process content close to ingestion when possible, then replicate popular media to regions with demand.",
+        "Playback traffic should be served from the edge whenever possible."
+      ],
+      "observabilityNotes": [
+        "Track upload success rate, transcoding queue lag, manifest latency, and playback startup time.",
+        "Separate metadata service failures from actual media delivery failures."
+      ],
+      "securityPrivacyNotes": [
+        "Protect upload authorization and signed media access carefully.",
+        "Moderation, abuse review, and privacy rules can affect storage and delivery workflows."
       ]
     },
     {
@@ -507,6 +554,78 @@
             "Async analytics for watch tracking."
           ]
         }
+      ],
+      "timedPrompts": [
+        {
+          "title": "Prompt 1",
+          "timeBox": "10 minutes",
+          "goal": "Practice a senior-style streaming answer.",
+          "prompt": "Design Netflix and explain catalog, playback, and analytics without mixing them.",
+          "checkpoints": [
+            "Separate discovery from playback.",
+            "Explain manifest and segment delivery clearly.",
+            "Mention global CDN and observability."
+          ]
+        }
+      ],
+      "mockConversation": [
+        {
+          "speaker": "Interviewer",
+          "text": "What would you optimize first for user experience?"
+        },
+        {
+          "speaker": "Candidate",
+          "text": "Playback startup time and stream stability, because users notice those immediately. Recommendation quality matters too, but it is not the hottest part of the media path."
+        }
+      ],
+      "answerQualityLevels": [
+        {
+          "level": "Good",
+          "summary": "Separates metadata and playback and mentions CDN.",
+          "traits": [
+            "Clear playback path.",
+            "Basic global-read awareness.",
+            "Reasonable storage explanation."
+          ]
+        },
+        {
+          "level": "Strong",
+          "summary": "Explains adaptive bitrate, analytics, and global delivery with strong prioritization.",
+          "traits": [
+            "Clean path separation.",
+            "Good user-experience focus.",
+            "Practical scaling logic."
+          ]
+        },
+        {
+          "level": "Excellent",
+          "summary": "Shows production-level thinking across playback, observability, and global rollout.",
+          "traits": [
+            "Separates data plane and support systems.",
+            "Mentions startup time, rebuffering, and edge health.",
+            "Explains what to monitor and optimize first."
+          ]
+        }
+      ],
+      "failureScenarios": [
+        {
+          "title": "Playback startup slows globally",
+          "issue": "Users can browse titles, but many streams start slowly in multiple regions.",
+          "strongResponse": "Check manifest service latency, CDN edge health, origin miss rate, and segment generation path before blaming the whole platform."
+        }
+      ],
+      "seniorConsiderations": [
+        "The playback path should be protected from recommendation and analytics overload.",
+        "Global failover and content placement decisions are major senior-level concerns here.",
+        "Observability should include startup delay, rebuffer rate, and edge-cache performance."
+      ],
+      "multiRegionNotes": [
+        "Different regions may need different cache strategies and replication timing based on demand.",
+        "Some metadata systems may stay global while playback delivery stays edge-heavy and regional."
+      ],
+      "observabilityNotes": [
+        "Track startup time, rebuffering, CDN hit rate, manifest latency, and error rate by region.",
+        "Use playback quality metrics, not only request counts, to judge user experience."
       ]
     },
     {
@@ -621,6 +740,39 @@
             "Then advanced features."
           ]
         }
+      ],
+      "timedPrompts": [
+        {
+          "title": "Prompt 1",
+          "timeBox": "8 minutes",
+          "goal": "Practice messaging at scale.",
+          "prompt": "Design WhatsApp and explain how online and offline users are both handled well.",
+          "checkpoints": [
+            "Explain connection layer.",
+            "Explain storage and delivery.",
+            "Explain media separately from text."
+          ]
+        }
+      ],
+      "failureScenarios": [
+        {
+          "title": "Large reconnect wave after outage",
+          "issue": "Millions of clients reconnect at once and message delivery slows.",
+          "strongResponse": "Use reconnect backoff, gateway scaling, queue smoothing, and priority on critical delivery paths."
+        }
+      ],
+      "seniorConsiderations": [
+        "Presence, delivery guarantees, and group fan-out must be reasoned about separately.",
+        "Privacy and encryption can change what the server is allowed to do.",
+        "Cross-region messaging needs careful ownership and latency planning."
+      ],
+      "multiRegionNotes": [
+        "Keep message routing as local as possible, but ensure user history and device sync still work across regions.",
+        "Global products may need region-aware presence and delivery services."
+      ],
+      "securityPrivacyNotes": [
+        "End-to-end encryption changes storage, search, and moderation options.",
+        "Metadata privacy may still matter even when content is protected."
       ]
     },
     {
@@ -733,6 +885,39 @@
             "Device sync state."
           ]
         }
+      ],
+      "timedPrompts": [
+        {
+          "title": "Prompt 1",
+          "timeBox": "9 minutes",
+          "goal": "Practice separating data planes.",
+          "prompt": "Design Google Drive and explain how metadata, blob storage, and sync differ.",
+          "checkpoints": [
+            "Separate file content from metadata.",
+            "Mention versioning and sharing.",
+            "Explain sync and conflict handling."
+          ]
+        }
+      ],
+      "failureScenarios": [
+        {
+          "title": "Conflicting offline edits appear after reconnect",
+          "issue": "Two users edit from different devices before sync completes.",
+          "strongResponse": "Explain version IDs, conflict copies or merge logic, and how metadata records preserve recoverable history."
+        }
+      ],
+      "seniorConsiderations": [
+        "Large-scale sync products live or die by metadata quality and conflict policies.",
+        "Collaboration features can require different consistency rules than passive file sync.",
+        "Operational recovery for failed chunk uploads should be part of the design."
+      ],
+      "multiRegionNotes": [
+        "Blob storage can replicate differently from metadata services.",
+        "Regional placement decisions may depend on compliance and access patterns."
+      ],
+      "securityPrivacyNotes": [
+        "Sharing links, permissions, and document visibility rules are central security concerns.",
+        "Sensitive files may require stronger auditing, encryption, and deletion workflows."
       ]
     },
     {
@@ -839,6 +1024,35 @@
             "Notification events."
           ]
         }
+      ],
+      "timedPrompts": [
+        {
+          "title": "Prompt 1",
+          "timeBox": "7 minutes",
+          "goal": "Practice social-media architecture.",
+          "prompt": "Design X or Twitter and explain the trade-off between fan-out on write and fan-out on read.",
+          "checkpoints": [
+            "Start with timeline path.",
+            "Mention celebrity skew.",
+            "Separate timeline, search, and trends."
+          ]
+        }
+      ],
+      "failureScenarios": [
+        {
+          "title": "A celebrity post overloads timeline generation",
+          "issue": "One write affects millions of timelines and queues back up.",
+          "strongResponse": "Explain how to degrade gracefully, shift strategy for hot accounts, and protect reader latency."
+        }
+      ],
+      "seniorConsiderations": [
+        "Celebrity skew and global event spikes are major production concerns.",
+        "Timeline freshness, ranking quality, and search freshness may need separate scaling paths.",
+        "Operational visibility into fan-out cost is crucial."
+      ],
+      "observabilityNotes": [
+        "Track timeline generation lag, cache hit rate, fan-out queue depth, and search freshness lag.",
+        "Use separate metrics for hot-account events and normal traffic."
       ]
     },
     {
@@ -945,6 +1159,39 @@
             "Realtime event volume."
           ]
         }
+      ],
+      "timedPrompts": [
+        {
+          "title": "Prompt 1",
+          "timeBox": "7 minutes",
+          "goal": "Practice microblogging trade-offs.",
+          "prompt": "Design X or Twitter and explain how you would handle celebrity traffic.",
+          "checkpoints": [
+            "Start with timeline generation.",
+            "Mention hot-account skew.",
+            "Separate search and trends from timeline delivery."
+          ]
+        }
+      ],
+      "failureScenarios": [
+        {
+          "title": "Celebrity event causes feed lag",
+          "issue": "One high-profile post creates huge fan-out pressure and timeline queues back up.",
+          "strongResponse": "Discuss hot-account handling, partial fan-out strategies, stronger caching, and protecting reader latency during event spikes."
+        }
+      ],
+      "seniorConsiderations": [
+        "Timeline freshness, search freshness, and trend freshness may scale very differently.",
+        "Hot-account behavior often needs special paths instead of one global strategy.",
+        "The system should degrade gracefully during major events, not simply fail."
+      ],
+      "multiRegionNotes": [
+        "Global events can create synchronized spikes across many regions at once.",
+        "Regional caches and event pipelines may need different warm-up and failover strategies."
+      ],
+      "observabilityNotes": [
+        "Track hot-account fan-out cost, timeline lag, cache hit rate, and trend-pipeline delay.",
+        "Watch user-visible freshness, not only internal queue depth."
       ]
     },
     {
@@ -1053,6 +1300,35 @@
             "Recording as an extra path."
           ]
         }
+      ],
+      "timedPrompts": [
+        {
+          "title": "Prompt 1",
+          "timeBox": "8 minutes",
+          "goal": "Practice a realtime media answer.",
+          "prompt": "Design Zoom and explain signaling, media flow, and recording clearly.",
+          "checkpoints": [
+            "Separate control plane from media plane.",
+            "Explain low-latency media routing.",
+            "Mention recording and chat as support paths."
+          ]
+        }
+      ],
+      "failureScenarios": [
+        {
+          "title": "Meeting quality drops under participant growth",
+          "issue": "Audio and video degrade as the participant count rises.",
+          "strongResponse": "Discuss media routing strategy, selective stream forwarding, quality adaptation, and participant-limit policies."
+        }
+      ],
+      "seniorConsiderations": [
+        "Realtime media systems need strict focus on latency, not just correctness.",
+        "The control plane should stay useful even if media quality degrades temporarily.",
+        "Observability should include user-perceived quality, not only server health."
+      ],
+      "observabilityNotes": [
+        "Track join latency, media packet loss, end-to-end delay, and reconnect rates.",
+        "Monitor meeting quality by geography and network type."
       ]
     },
     {
@@ -1172,6 +1448,53 @@
             "Keep a clear audit trail."
           ]
         }
+      ],
+      "timedPrompts": [
+        {
+          "title": "Prompt 1",
+          "timeBox": "9 minutes",
+          "goal": "Practice correctness-first design.",
+          "prompt": "Design a payment system and explain how you avoid duplicate charges.",
+          "checkpoints": [
+            "Use a clear payment state model.",
+            "Mention idempotency and retries.",
+            "Explain reconciliation and auditing."
+          ]
+        }
+      ],
+      "mockConversation": [
+        {
+          "speaker": "Interviewer",
+          "text": "Why are you spending so much time on state and idempotency?"
+        },
+        {
+          "speaker": "Candidate",
+          "text": "Because in payments the biggest failure is not only downtime. It is incorrect money movement, duplicate charges, or missing auditability."
+        }
+      ],
+      "failureScenarios": [
+        {
+          "title": "Processor timeout after authorization may have succeeded",
+          "issue": "The client retries, but the upstream provider may already have accepted the charge.",
+          "strongResponse": "Use idempotency keys, store request state durably, and reconcile with the provider before creating a second charge path."
+        }
+      ],
+      "seniorConsiderations": [
+        "Correctness, auditability, and reconciliation matter more than flashy scale vocabulary.",
+        "Multi-region payments may need careful regional ownership and ledger consistency rules.",
+        "Operational incident handling should be part of the design story."
+      ],
+      "multiRegionNotes": [
+        "Regional payment rules and processor integrations may differ by geography.",
+        "Cross-region failover must not create double-charge risk."
+      ],
+      "observabilityNotes": [
+        "Track authorization success rate, retry rate, reconciliation mismatch rate, and duplicate-request detection.",
+        "Separate processor issues from internal state-machine bugs."
+      ],
+      "securityPrivacyNotes": [
+        "Protect card and account data with strong segregation, encryption, and access auditing.",
+        "Tokenization and compliance boundaries should be part of the architecture discussion."
       ]
     },
     {
@@ -1284,6 +1607,39 @@
             "Delivery tracking."
           ]
         }
+      ],
+      "timedPrompts": [
+        {
+          "title": "Prompt 1",
+          "timeBox": "6 minutes",
+          "goal": "Practice event-driven explanation.",
+          "prompt": "Design a notification system with push, email, and SMS.",
+          "checkpoints": [
+            "Separate ingestion from delivery.",
+            "Mention preferences and deduplication.",
+            "Explain retry and overload handling."
+          ]
+        }
+      ],
+      "failureScenarios": [
+        {
+          "title": "Push provider outage during traffic spike",
+          "issue": "Push delivery fails while a major product event triggers millions of notifications.",
+          "strongResponse": "Use channel-specific queues, priority handling, provider failover or retry policy, and load shedding for low-priority notifications."
+        }
+      ],
+      "seniorConsiderations": [
+        "Notification systems need strong abuse controls and product-priority rules.",
+        "Backpressure matters because fan-out can grow much faster than user-facing traffic.",
+        "Delivery observability should include both provider health and user-level outcomes."
+      ],
+      "observabilityNotes": [
+        "Track queue depth by channel, provider error rate, retry rate, and user delivery success.",
+        "Separate template bugs from provider delivery failures."
+      ],
+      "securityPrivacyNotes": [
+        "Notification content can leak sensitive data, so templates and channel rules should be privacy-aware.",
+        "Preference and opt-out records must be durable and respected across all delivery paths."
       ]
     }
   ]

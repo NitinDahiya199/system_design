@@ -60,6 +60,118 @@
         ],
         "closing": "This gives you a clear target before you choose databases, queues, or caches."
       },
+      "spokenAnswer": {
+        "title": "Sample spoken answer",
+        "paragraphs": [
+          "Before I jump into architecture, I want to confirm the most important user action and the main scale assumptions.",
+          "I would ask which features are truly in scope, what traffic we expect, and how much stale data or downtime is acceptable.",
+          "Once that is clear, I can design the simplest version that solves the real problem."
+        ]
+      },
+      "timedPrompts": [
+        {
+          "title": "Prompt 1",
+          "timeBox": "2 minutes",
+          "goal": "Practice a clean opening.",
+          "prompt": "You are asked to design a notification system. Start only with clarifying questions.",
+          "checkpoints": [
+            "Ask about channels such as push, email, and SMS.",
+            "Ask about delivery speed and user preference rules.",
+            "Ask what happens under burst traffic."
+          ]
+        },
+        {
+          "title": "Prompt 2",
+          "timeBox": "90 seconds",
+          "goal": "Practice narrowing scope.",
+          "prompt": "You are asked to design Instagram. Clarify enough to keep the interview focused.",
+          "checkpoints": [
+            "Choose one core user flow first.",
+            "Separate must-have from nice-to-have features.",
+            "Say your assumptions out loud."
+          ]
+        }
+      ],
+      "mockConversation": [
+        {
+          "speaker": "Interviewer",
+          "text": "Design a ride-hailing app."
+        },
+        {
+          "speaker": "Candidate",
+          "text": "Before drawing the design, I want to confirm whether we are focusing on rider-driver matching only, or also pricing, payments, and live tracking."
+        },
+        {
+          "speaker": "Interviewer",
+          "text": "Focus on booking and live tracking first."
+        },
+        {
+          "speaker": "Candidate",
+          "text": "Great. I will optimize the design around location updates, fast matching, and highly available trip state."
+        }
+      ],
+      "answerQualityLevels": [
+        {
+          "level": "Beginner",
+          "summary": "Asks random questions without showing a reason.",
+          "traits": [
+            "Questions are not grouped.",
+            "Misses scale or reliability.",
+            "Jumps into implementation too quickly."
+          ]
+        },
+        {
+          "level": "Good",
+          "summary": "Asks the main product and scale questions clearly.",
+          "traits": [
+            "Separates features and non-functional goals.",
+            "Narrows scope early.",
+            "Builds a usable base for the design."
+          ]
+        },
+        {
+          "level": "Strong",
+          "summary": "Shapes the whole interview with a few sharp questions.",
+          "traits": [
+            "Questions directly change the architecture.",
+            "Calls out trade-offs early.",
+            "Keeps the interview focused and calm."
+          ]
+        },
+        {
+          "level": "Excellent",
+          "summary": "Clarifies product scope like a senior engineer and aligns the whole design around it.",
+          "traits": [
+            "Turns vague problems into crisp boundaries.",
+            "Balances depth and speed.",
+            "Makes later trade-offs much easier to justify."
+          ]
+        }
+      ],
+      "goodVsWeakAnswer": {
+        "question": "How should you start a system design interview?",
+        "weakAnswer": "I would probably use microservices, Redis, Kafka, and a scalable database, but I need more details.",
+        "goodAnswer": "Before choosing tools, I would confirm the main user flow, scale, latency needs, and what can be out of scope for this round.",
+        "whyGoodWorks": "The good answer shows control, prioritization, and product thinking before technology selection."
+      },
+      "failureScenarios": [
+        {
+          "title": "You did not ask enough questions",
+          "issue": "Halfway through the interview you realize the product actually needs strong consistency.",
+          "strongResponse": "Pause, restate the new requirement, and explain how it changes the design rather than pretending the original design still fits."
+        }
+      ],
+      "debuggingChecklist": [
+        "Did I ask about scale?",
+        "Did I ask about freshness or consistency?",
+        "Did I narrow the scope?",
+        "Did I confirm the main user flow?"
+      ],
+      "seniorConsiderations": [
+        "Clarify compliance, privacy, and audit needs early for sensitive products.",
+        "Ask whether the system is regional or multi-region from day one.",
+        "Use clarification questions to reveal operational risk, not just product features."
+      ],
       "relatedTopics": [
         { "category": "interview-prep", "id": "estimate-scale", "title": "Estimate Scale" },
         { "category": "case-studies", "id": "url-shortener", "title": "Design a URL Shortener" }
@@ -142,6 +254,105 @@
         ],
         "closing": "Simple estimates are enough if they clearly shape the design."
       },
+      "spokenAnswer": {
+        "title": "Sample spoken answer",
+        "paragraphs": [
+          "I will do rough numbers, not exact finance-grade math.",
+          "First I want daily users, peak active users, and requests per second because those change the architecture most.",
+          "Then I will estimate storage and bandwidth so I know whether caching, replication, or sharding matter yet."
+        ]
+      },
+      "timedPrompts": [
+        {
+          "title": "Prompt 1",
+          "timeBox": "3 minutes",
+          "goal": "Practice a quick estimate drill.",
+          "prompt": "Estimate traffic and storage for a photo-sharing app with 50 million daily active users.",
+          "checkpoints": [
+            "State assumptions first.",
+            "Separate average from peak traffic.",
+            "Connect the numbers to architecture choices."
+          ]
+        },
+        {
+          "title": "Prompt 2",
+          "timeBox": "2 minutes",
+          "goal": "Practice bandwidth reasoning.",
+          "prompt": "Estimate streaming bandwidth for a video product with 5 million concurrent viewers.",
+          "checkpoints": [
+            "Choose an average stream bitrate.",
+            "Convert viewers into total outbound traffic.",
+            "Say why CDN becomes necessary."
+          ]
+        }
+      ],
+      "mockConversation": [
+        {
+          "speaker": "Interviewer",
+          "text": "Do we really need rough numbers here?"
+        },
+        {
+          "speaker": "Candidate",
+          "text": "Yes, because the numbers tell us whether one database is enough, whether bandwidth becomes a bottleneck, and whether caching or partitioning is needed yet."
+        }
+      ],
+      "answerQualityLevels": [
+        {
+          "level": "Beginner",
+          "summary": "Throws out numbers without assumptions.",
+          "traits": [
+            "Numbers feel random.",
+            "No peak traffic reasoning.",
+            "No link back to architecture."
+          ]
+        },
+        {
+          "level": "Good",
+          "summary": "Makes simple estimates and uses them to justify the design.",
+          "traits": [
+            "States assumptions clearly.",
+            "Covers QPS and storage.",
+            "Uses the math to support choices."
+          ]
+        },
+        {
+          "level": "Strong",
+          "summary": "Estimates the right bottlenecks quickly and calmly.",
+          "traits": [
+            "Chooses the most important numbers first.",
+            "Handles peak traffic well.",
+            "Connects numbers to risk and next steps."
+          ]
+        },
+        {
+          "level": "Excellent",
+          "summary": "Uses estimation like an engineering tool, not a math exercise.",
+          "traits": [
+            "Picks the right simplifying assumptions.",
+            "Explains uncertainty well.",
+            "Turns estimates into decisive architecture reasoning."
+          ]
+        }
+      ],
+      "goodVsWeakAnswer": {
+        "question": "What makes an estimate useful in a system design interview?",
+        "weakAnswer": "I think the requests per second will be around 12,000 and storage maybe 8 TB.",
+        "goodAnswer": "Assuming 10 million daily active users and 2 percent peak concurrency, I estimate around 16,000 requests per second. That tells me we should now think about caching, bandwidth, and read scaling.",
+        "whyGoodWorks": "The good answer shows assumptions, rough reasoning, and an architectural consequence."
+      },
+      "failureScenarios": [
+        {
+          "title": "You underestimated peak traffic",
+          "issue": "Your design looks fine for average traffic but fails during peak events.",
+          "strongResponse": "Call out the gap, add peak multipliers to the estimates, and explain which layers need scaling first."
+        }
+      ],
+      "debuggingChecklist": [
+        "Did I estimate peak traffic separately?",
+        "Did I cover storage growth over time?",
+        "Did I mention bandwidth for media-heavy systems?",
+        "Did I connect the estimate back to the architecture?"
+      ],
       "relatedTopics": [
         { "category": "fundamentals", "id": "latency-throughput", "title": "Latency and Throughput" },
         { "category": "interview-prep", "id": "high-level-design", "title": "High-level Design" }
@@ -234,6 +445,86 @@
         ],
         "closing": "The goal is to create a clear base that can be refined, not to draw everything at once."
       },
+      "timedPrompts": [
+        {
+          "title": "Prompt 1",
+          "timeBox": "5 minutes",
+          "goal": "Practice a whiteboard opening.",
+          "prompt": "Sketch a high-level design for a URL shortener.",
+          "checkpoints": [
+            "Show the client and entry point.",
+            "Show the main storage path.",
+            "Mention at least one scaling or reliability note."
+          ]
+        }
+      ],
+      "mockConversation": [
+        {
+          "speaker": "Interviewer",
+          "text": "Why did you start with such a simple diagram?"
+        },
+        {
+          "speaker": "Candidate",
+          "text": "I want a clean baseline first so we can reason about the main user flow before adding replicas, caches, and failure handling."
+        }
+      ],
+      "spokenAnswer": {
+        "title": "Sample spoken answer",
+        "paragraphs": [
+          "I will start with the simplest end-to-end user flow.",
+          "Then I will add storage, async work, and any major supporting systems.",
+          "After that I will discuss how to scale and harden the design."
+        ]
+      },
+      "answerQualityLevels": [
+        {
+          "level": "Beginner",
+          "summary": "Draws many boxes but does not explain the flow.",
+          "traits": [
+            "Diagram is cluttered.",
+            "Data movement is unclear.",
+            "No layering in the explanation."
+          ]
+        },
+        {
+          "level": "Good",
+          "summary": "Shows the main path clearly.",
+          "traits": [
+            "Client and service flow are understandable.",
+            "Storage choices are visible.",
+            "A few useful scale notes appear."
+          ]
+        },
+        {
+          "level": "Strong",
+          "summary": "Builds a clean architecture in layers.",
+          "traits": [
+            "Starts simple.",
+            "Adds detail only when needed.",
+            "Keeps the explanation easy to follow."
+          ]
+        },
+        {
+          "level": "Excellent",
+          "summary": "Uses the diagram to drive a calm and structured interview.",
+          "traits": [
+            "Every box has a purpose.",
+            "Trade-offs appear at the right time.",
+            "The architecture stays clear even as depth increases."
+          ]
+        }
+      ],
+      "goodVsWeakAnswer": {
+        "question": "What makes a high-level design feel strong?",
+        "weakAnswer": "I would probably use microservices, Kafka, Redis, and a global database.",
+        "goodAnswer": "I would start with the core user journey, show the main services and storage, and then add the scaling layers only where the baseline starts to strain.",
+        "whyGoodWorks": "The stronger answer is organized around flow and reasoning instead of a list of technologies."
+      },
+      "seniorConsiderations": [
+        "Explain the control plane separately from the hottest data plane where useful.",
+        "Show how the design can evolve from simple to large scale.",
+        "Say what observability signals you would need before adding more complexity."
+      ],
       "relatedTopics": [
         { "category": "components", "id": "queue", "title": "Queue" },
         { "category": "case-studies", "id": "dropbox", "title": "Design Dropbox" }
@@ -300,6 +591,45 @@
         ],
         "closing": "When APIs and data shape are clear, the rest of the architecture becomes easier to justify."
       },
+      "timedPrompts": [
+        {
+          "title": "Prompt 1",
+          "timeBox": "4 minutes",
+          "goal": "Practice entity and API design.",
+          "prompt": "Design the core APIs and data model for a chat system.",
+          "checkpoints": [
+            "Name the main entities.",
+            "List the most important reads and writes.",
+            "Explain which data needs indexes."
+          ]
+        }
+      ],
+      "mockConversation": [
+        {
+          "speaker": "Interviewer",
+          "text": "Why did you choose a relational model here?"
+        },
+        {
+          "speaker": "Candidate",
+          "text": "Because the core entities and state transitions are structured, and correctness between them matters more than extreme schema flexibility on day one."
+        }
+      ],
+      "goodVsWeakAnswer": {
+        "question": "How should you explain database choice in an interview?",
+        "weakAnswer": "I would use NoSQL because it scales better.",
+        "goodAnswer": "I would choose storage after describing the main access patterns. For example, if I need strong relationships and transactional integrity, SQL may fit better. If I mostly need simple large-scale key lookups, a key-value store may be a better choice.",
+        "whyGoodWorks": "The stronger answer shows that database choice comes from workload and correctness needs."
+      },
+      "seniorConsiderations": [
+        "Call out data ownership between services so the architecture stays maintainable.",
+        "Mention privacy and retention needs for sensitive entities.",
+        "Explain how API boundaries affect rate limits, auth, and observability."
+      ],
+      "securityPrivacyNotes": [
+        "Do not expose internal IDs carelessly in public APIs.",
+        "Define retention and deletion rules for sensitive records.",
+        "Think about permission checks as part of the data model, not as an afterthought."
+      ],
       "relatedTopics": [
         { "category": "components", "id": "api-gateway", "title": "API Gateway and Proxy" },
         { "category": "case-studies", "id": "chat-system", "title": "Design a Chat System" }
@@ -373,6 +703,53 @@
         ],
         "closing": "This shows that you know both how to scale and how to reason about the cost of scaling."
       },
+      "timedPrompts": [
+        {
+          "title": "Prompt 1",
+          "timeBox": "2 minutes",
+          "goal": "Practice ending your answer strongly.",
+          "prompt": "You just finished designing a news feed. Explain the first bottleneck and your next improvement.",
+          "checkpoints": [
+            "Name one specific bottleneck.",
+            "Choose one realistic next step.",
+            "State the new trade-off that comes with it."
+          ]
+        }
+      ],
+      "mockConversation": [
+        {
+          "speaker": "Interviewer",
+          "text": "What breaks first if traffic grows 10x?"
+        },
+        {
+          "speaker": "Candidate",
+          "text": "I would first examine the feed write amplification path, because one write may now fan out to a very large number of readers. My next improvement would likely be to change timeline generation strategy or add stronger caching around hot reads."
+        }
+      ],
+      "goodVsWeakAnswer": {
+        "question": "How should you discuss trade-offs near the end of the interview?",
+        "weakAnswer": "If needed we can scale everything later with more services and better hardware.",
+        "goodAnswer": "The first likely bottleneck here is the hot read path. I would add caching first because it gives the highest benefit now, but it also introduces invalidation complexity and possible stale reads.",
+        "whyGoodWorks": "The stronger answer is specific, prioritized, and honest about the new cost of the improvement."
+      },
+      "failureScenarios": [
+        {
+          "title": "One improvement creates a new problem",
+          "issue": "After adding caching, users sometimes see stale data.",
+          "strongResponse": "Acknowledge the new trade-off, describe invalidation or TTL strategy, and explain when stale reads are acceptable and when they are not."
+        }
+      ],
+      "debuggingChecklist": [
+        "What is the hottest path?",
+        "Which layer has the highest fan-out?",
+        "What metric would show the bottleneck first?",
+        "What new cost appears after the next optimization?"
+      ],
+      "seniorConsiderations": [
+        "Discuss observability before guessing at fixes.",
+        "Separate cost bottlenecks from latency bottlenecks.",
+        "Explain the operational burden of the next scaling step."
+      ],
       "relatedTopics": [
         { "category": "fundamentals", "id": "partitioning", "title": "Partitioning and Sharding" },
         { "category": "components", "id": "cache", "title": "Cache" }

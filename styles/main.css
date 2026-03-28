@@ -24,6 +24,7 @@
 
 html {
   scroll-behavior: smooth;
+  scroll-padding-top: 7rem;
 }
 
 body {
@@ -55,7 +56,16 @@ button:focus-visible {
 p,
 li {
   font-size: 1.05rem;
-  line-height: 1.7;
+  line-height: 1.75;
+}
+
+code {
+  padding: 0.12rem 0.4rem;
+  border: 1px solid rgba(153, 191, 255, 0.14);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.04);
+  font-family: "Consolas", "Courier New", monospace;
+  font-size: 0.94em;
 }
 
 .site-shell {
@@ -224,7 +234,7 @@ h3 {
 .hero-panel,
 .panel,
 .study-card {
-  padding: 1.4rem;
+  padding: 1.6rem;
 }
 
 .hero-panel h2 {
@@ -408,40 +418,73 @@ h3 {
   grid-template-columns: minmax(0, 1.6fr) minmax(280px, 0.9fr);
 }
 
+.detail-hero .hero-panel {
+  background:
+    linear-gradient(180deg, rgba(126, 224, 195, 0.12), rgba(255, 255, 255, 0.03)),
+    var(--surface-strong);
+  border-color: rgba(126, 224, 195, 0.2);
+}
+
 .detail-layout {
   display: grid;
-  grid-template-columns: minmax(240px, 0.7fr) minmax(0, 1.5fr);
-  gap: 1rem;
+  grid-template-columns: minmax(255px, 0.72fr) minmax(0, 1.5fr);
+  gap: 1.25rem;
   margin-top: 2rem;
   align-items: start;
 }
 
 .detail-sidebar {
   position: sticky;
-  top: 6.5rem;
+  top: 6rem;
+  max-height: calc(100vh - 7rem);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  scrollbar-width: thin;
 }
 
 .detail-content {
   display: grid;
-  gap: 1rem;
+  gap: 1.35rem;
 }
 
 .detail-section {
-  scroll-margin-top: 1.5rem;
+  scroll-margin-top: 7rem;
+  padding: 1.75rem;
 }
 
 .detail-section h2 {
-  margin-bottom: 0.85rem;
+  margin-bottom: 1.1rem;
 }
 
 .detail-section p {
   margin-top: 0;
 }
 
+.detail-section > p,
+.detail-section > .muted,
+.detail-section > .takeaway-note,
+.detail-section > .mini-link-row {
+  max-width: 72ch;
+}
+
+.detail-section p + p {
+  margin-top: 0.95rem;
+}
+
+.detail-section > :last-child {
+  margin-bottom: 0;
+}
+
 .detail-list-wrap h3 {
   margin-bottom: 0.55rem;
   font-size: 1rem;
   color: var(--accent-warm);
+}
+
+.detail-list-wrap {
+  margin-top: 1.15rem;
+  padding-top: 1rem;
+  border-top: 1px solid rgba(153, 191, 255, 0.12);
 }
 
 .step-flow,
@@ -457,7 +500,7 @@ h3 {
 .flow-step,
 .diagram-card,
 .estimation-card {
-  padding: 1.15rem;
+  padding: 1.35rem;
   border: 1px solid rgba(153, 191, 255, 0.12);
   border-radius: 16px;
   background: rgba(255, 255, 255, 0.03);
@@ -532,6 +575,121 @@ h3 {
   gap: 0.9rem;
 }
 
+.spoken-answer-block,
+.conversation-thread,
+.quality-grid,
+.comparison-grid,
+.failure-grid,
+.timed-prompt-grid {
+  display: grid;
+  gap: 1rem;
+}
+
+.spoken-answer-line {
+  padding: 1.1rem 1.2rem;
+  border-left: 4px solid var(--accent-warm);
+  border-radius: 12px;
+  background: rgba(255, 213, 128, 0.08);
+}
+
+.timed-prompt-grid,
+.quality-grid,
+.failure-grid {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.comparison-grid {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  align-items: start;
+}
+
+.timed-prompt-card,
+.quality-card,
+.comparison-card,
+.failure-card,
+.conversation-line {
+  padding: 1.3rem;
+  border: 1px solid rgba(153, 191, 255, 0.12);
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.conversation-line:nth-child(odd) {
+  background: rgba(255, 255, 255, 0.045);
+}
+
+.timed-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  margin-bottom: 0.75rem;
+}
+
+.time-badge,
+.speaker-badge,
+.quality-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.35rem 0.7rem;
+  border-radius: 999px;
+  font-family: "Outfit", sans-serif;
+  font-size: 0.82rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+}
+
+.time-badge {
+  color: #051d1a;
+  background: var(--accent);
+}
+
+.speaker-badge {
+  margin-bottom: 0.75rem;
+  color: var(--accent);
+  background: rgba(126, 224, 195, 0.08);
+  border: 1px solid rgba(126, 224, 195, 0.2);
+}
+
+.quality-beginner {
+  color: #0b1530;
+  background: #bfd4ff;
+}
+
+.quality-good {
+  color: #072321;
+  background: #8debd2;
+}
+
+.quality-strong {
+  color: #2a1800;
+  background: #ffd48a;
+}
+
+.quality-excellent {
+  color: #2f0915;
+  background: #ffc0d1;
+}
+
+.weak-answer {
+  border-color: rgba(255, 144, 144, 0.2);
+  background: rgba(255, 110, 110, 0.06);
+}
+
+.good-answer {
+  border-color: rgba(126, 224, 195, 0.22);
+  background: rgba(126, 224, 195, 0.06);
+}
+
+.conversation-line p,
+.comparison-card p,
+.quality-card p,
+.failure-card p,
+.timed-prompt-card p {
+  margin-bottom: 0;
+}
+
 .takeaway-note {
   margin-top: 1rem;
   padding: 1rem 1.1rem;
@@ -555,6 +713,7 @@ h3 {
   display: inline-flex;
   align-items: center;
   gap: 0.35rem;
+  min-height: 44px;
   padding: 0.65rem 0.85rem;
   border: 1px solid rgba(153, 191, 255, 0.14);
   border-radius: 12px;
@@ -567,6 +726,36 @@ h3 {
   transform: translateY(-2px);
   border-color: rgba(126, 224, 195, 0.24);
   background: rgba(126, 224, 195, 0.08);
+}
+
+.mini-link.is-active {
+  border-color: rgba(126, 224, 195, 0.38);
+  background: rgba(126, 224, 195, 0.14);
+  box-shadow: inset 0 0 0 1px rgba(126, 224, 195, 0.08);
+}
+
+.detail-section#sample-answer,
+.detail-section#spoken-answer,
+.detail-section#timed-prompts,
+.detail-section#mock-conversation,
+.detail-section#answer-quality,
+.detail-section#answer-comparison,
+.detail-section#failure-scenarios {
+  background:
+    linear-gradient(180deg, rgba(126, 224, 195, 0.08), rgba(255, 255, 255, 0.03)),
+    var(--surface);
+}
+
+.check-list li,
+.stack-list li,
+.ordered-list li {
+  margin-bottom: 0.55rem;
+}
+
+.check-list li:last-child,
+.stack-list li:last-child,
+.ordered-list li:last-child {
+  margin-bottom: 0;
 }
 
 .feature-grid {
@@ -604,7 +793,11 @@ h3 {
   .detail-hero,
   .step-flow,
   .diagram-grid,
-  .estimation-grid {
+  .estimation-grid,
+  .timed-prompt-grid,
+  .quality-grid,
+  .comparison-grid,
+  .failure-grid {
     grid-template-columns: 1fr;
   }
 
@@ -625,6 +818,8 @@ h3 {
 
   .detail-sidebar {
     position: static;
+    max-height: none;
+    overflow: visible;
   }
 }
 
@@ -645,7 +840,7 @@ h3 {
   .topic-card,
   .study-card,
   .roadmap-step {
-    padding: 1.15rem;
+    padding: 1.25rem;
   }
 
   .main-nav {
@@ -655,10 +850,23 @@ h3 {
   .main-nav a {
     padding: 0.4rem 0.72rem;
     font-size: 0.96rem;
+    min-height: 44px;
   }
 
   p,
   li {
     font-size: 1rem;
+  }
+
+  .detail-section,
+  .flow-step,
+  .diagram-card,
+  .estimation-card,
+  .timed-prompt-card,
+  .quality-card,
+  .comparison-card,
+  .failure-card,
+  .conversation-line {
+    padding: 1.25rem;
   }
 }
