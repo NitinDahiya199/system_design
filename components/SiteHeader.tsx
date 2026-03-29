@@ -23,8 +23,17 @@ function isActive(href: string, pathname: string): boolean {
 export function SiteHeader() {
   const pathname = usePathname() || "";
   const [open, setOpen] = useState(false);
+  const [narrow, setNarrow] = useState(false);
 
   const close = useCallback(() => setOpen(false), []);
+
+  useEffect(() => {
+    const mq = window.matchMedia("(max-width: 768px)");
+    const sync = () => setNarrow(mq.matches);
+    sync();
+    mq.addEventListener("change", sync);
+    return () => mq.removeEventListener("change", sync);
+  }, []);
 
   useEffect(() => {
     close();
@@ -71,8 +80,9 @@ export function SiteHeader() {
         id="primary-navigation"
         className="main-nav"
         aria-label="Primary"
-        aria-hidden={!open}
-        inert={!open}
+        {...(narrow && !open
+          ? { "aria-hidden": true as const, inert: true }
+          : {})}
       >
         {NAV.map(({ href, label }) => (
           <Link
