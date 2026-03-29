@@ -7,7 +7,9 @@ import { detailPath } from "@/lib/content-helpers";
 
 type Props = { params: Promise<{ category: string }> };
 
-export async function generateStaticParams() {
+export const dynamicParams = false;
+
+export function generateStaticParams() {
   return CATEGORIES.map((category) => ({ category }));
 }
 

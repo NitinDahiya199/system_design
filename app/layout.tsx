@@ -24,6 +24,9 @@ export const metadata: Metadata = {
   },
   description:
     "Learn system design with simple lessons, deep pages, and interview-ready examples.",
+  icons: {
+    icon: [{ url: "/favicon.ico", sizes: "any" }],
+  },
 };
 
 export default function RootLayout({

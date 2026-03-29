@@ -9,7 +9,9 @@ type Props = {
   params: Promise<{ category: string; id: string }>;
 };
 
-export async function generateStaticParams() {
+export const dynamicParams = false;
+
+export function generateStaticParams() {
   return allCategoryBundles().flatMap((data) =>
     data.items.map((item) => ({
       category: data.category,
